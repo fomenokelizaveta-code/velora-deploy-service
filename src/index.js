@@ -21,7 +21,7 @@ app.post('/v1/deploy', async function (req, res) {
   const mode = body.mode || 'create_or_update';
   const site_build_brief = body.site_build_brief;
 
-  if (!client_id  !site_build_brief  !site_build_brief.business_name) {
+ if (!client_id  !site_build_brief  !site_build_brief.business_name) {
     return res.status(200).json({
       status: 'ERROR',
       site_result_url: '',
