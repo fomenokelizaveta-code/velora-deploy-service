@@ -13,6 +13,7 @@ const PORT = process.env.PORT || 3000;
 const CLOUDFLARE_ACCOUNT_ID = process.env.CLOUDFLARE_ACCOUNT_ID;
 const CLOUDFLARE_API_TOKEN = process.env.CLOUDFLARE_API_TOKEN;
 const GENERATOR_VERSION = 'business-site-v2';
+const VELORA_ADMIN_SECRET = process.env.VELORA_ADMIN_SECRET || '';
 
 app.use(express.json());
 
@@ -30,6 +31,186 @@ app.get('/v1/build', function (req, res) {
     generator: GENERATOR_VERSION
   });
 });
+
+// Protected lightweight admin editor for updating a generated site's brief.
+app.get('/v1/admin', function (req, res) {
+  const slug = sanitizeProjectName(req.query.slug || '');
+  if (!slug) return res.status(400).send('Missing slug');
+
+  const html = `<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Velora Admin</title>
+  <style>
+    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f5f3ef;color:#171717;margin:0}
+    .wrap{max-width:860px;margin:0 auto;padding:28px 18px 70px}
+    h1{font-family:Georgia,serif;font-size:42px;margin:0 0 8px}
+    p{color:#6f6a64}
+    label{display:block;font-weight:700;margin:18px 0 8px}
+    input,textarea{width:100%;box-sizing:border-box;border:1px solid #d8d2ca;border-radius:14px;padding:14px;font:inherit;background:#fff}
+    textarea{min-height:120px;resize:vertical}
+    button{margin-top:20px;border:0;border-radius:999px;padding:14px 22px;background:#171717;color:#fff;font-weight:700;font-size:16px}
+    .status{margin-top:14px;font-weight:700}
+    code{background:#eee8df;padding:3px 7px;border-radius:7px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Velora Admin</h1>
+    <p>Редактирование сайта <code>${escapeHtml(slug)}</code></p>
+    <label>Админ-ключ</label>
+    <input id="secret" type="password" placeholder="Введите ключ доступа">
+    <label>Название бизнеса</label>
+    <input id="business_name" placeholder="Название">
+    <label>Описание</label>
+    <textarea id="business_description" placeholder="Описание бизнеса"></textarea>
+    <label>Телефон</label>
+    <input id="phone" placeholder="+7 ...">
+    <label>Telegram</label>
+    <input id="telegram" placeholder="@username или https://t.me/...">
+    <label>Адрес</label>
+    <input id="address" placeholder="Адрес">
+    <label>Режим работы</label>
+    <input id="working_hours" placeholder="Ежедневно, 09:00–20:00">
+    <label>Заголовок на первом экране</label>
+    <input id="headline" placeholder="Заголовок">
+    <label>Подзаголовок</label>
+    <textarea id="subheadline" placeholder="Подзаголовок"></textarea>
+    <label>Ссылка на главное фото</label>
+    <input id="hero_image" placeholder="https://...">
+    <label>Услуги / товары (JSON-массив)</label>
+    <textarea id="services" placeholder='[{"title":"Услуга","description":"Описание","price":"от 1000 ₽"}]'></textarea>
+    <label>Отзывы (JSON-массив)</label>
+    <textarea id="reviews" placeholder='[{"name":"Анна","text":"Отлично","rating":5}]'></textarea>
+    <button id="save">Сохранить и опубликовать</button>
+    <div class="status" id="status"></div>
+  </div>
+  <script>
+    const slug = ${JSON.stringify(slug)};
+    const $ = id => document.getElementById(id);
+
+    async function load() {
+      const secret = localStorage.getItem('velora_admin_secret') || '';
+      $('secret').value = secret;
+      if (!secret) return;
+      const r = await fetch('/v1/site-brief?slug=' + encodeURIComponent(slug), {
+        headers: {'x-velora-admin-secret': secret}
+      });
+      if (!r.ok) return;
+      const data = await r.json();
+      const b = data.brief || {};
+      ['business_name','business_description','phone','telegram','address','working_hours','headline','subheadline','hero_image'].forEach(k => {
+        if ($(k)) $(k).value = b[k] || '';
+      });
+      $('services').value = JSON.stringify(b.services || b.products || [], null, 2);
+      $('reviews').value = JSON.stringify(b.reviews || [], null, 2);
+    }
+
+    $('save').onclick = async () => {
+      const secret = $('secret').value.trim();
+      localStorage.setItem('velora_admin_secret', secret);
+      let services=[], reviews=[];
+      try { services = $('services').value.trim() ? JSON.parse($('services').value) : []; } catch(e) { $('status').textContent='Ошибка JSON в услугах'; return; }
+      try { reviews = $('reviews').value.trim() ? JSON.parse($('reviews').value) : []; } catch(e) { $('status').textContent='Ошибка JSON в отзывах'; return; }
+
+      const brief = {
+        business_name:$('business_name').value,
+        business_description:$('business_description').value,
+        phone:$('phone').value,
+        telegram:$('telegram').value,
+        address:$('address').value,
+        working_hours:$('working_hours').value,
+        headline:$('headline').value,
+        subheadline:$('subheadline').value,
+        hero_image:$('hero_image').value,
+        services,
+        reviews
+      };
+
+      $('status').textContent='Публикую...';
+      const r = await fetch('/v1/admin/update', {
+        method:'POST',
+        headers:{'Content-Type':'application/json','x-velora-admin-secret':secret},
+        body:JSON.stringify({site_slug:slug, site_build_brief:brief})
+      });
+      const data = await r.json();
+      $('status').textContent = data.status === 'OK'
+        ? 'Готово: ' + data.site_result_url
+        : 'Ошибка: ' + (data.error || 'unknown');
+    };
+
+    load();
+  </script>
+</body>
+</html>`;
+  res.type('html').send(html);
+});
+
+app.get('/v1/site-brief', function (req, res) {
+  if (!isAdminAuthorized(req)) return res.status(401).json({status:'ERROR', error:'UNAUTHORIZED'});
+  const slug = sanitizeProjectName(req.query.slug || '');
+  if (!slug) return res.status(400).json({status:'ERROR', error:'Missing slug'});
+  const file = briefStorePath(slug);
+  if (!fs.existsSync(file)) return res.status(404).json({status:'ERROR', error:'NOT_FOUND'});
+  try {
+    return res.json({status:'OK', site_slug:slug, brief:JSON.parse(fs.readFileSync(file,'utf8'))});
+  } catch (e) {
+    return res.status(500).json({status:'ERROR', error:'BRIEF_READ_FAILED'});
+  }
+});
+
+app.post('/v1/admin/update', async function (req, res) {
+  if (!isAdminAuthorized(req)) return res.status(401).json({status:'ERROR', error:'UNAUTHORIZED'});
+  const body=req.body||{};
+  const site_build_brief=body.site_build_brief||{};
+  const site_slug=sanitizeProjectName(body.site_slug || site_build_brief.business_name || '');
+  if (!site_slug || !site_build_brief.business_name) {
+    return res.status(400).json({status:'ERROR', error:'VALIDATION'});
+  }
+
+  try {
+    saveBrief(site_slug, site_build_brief);
+    const tempDir=path.join('/tmp', `velora-admin-${Date.now()}`);
+    fs.mkdirSync(tempDir,{recursive:true});
+    await generateStaticSite(tempDir, site_build_brief, site_slug);
+    const projectName=await ensureCloudflareProject(site_slug);
+    const deploymentUrl=await deployToCloudflarePages(tempDir, projectName, CLOUDFLARE_ACCOUNT_ID, CLOUDFLARE_API_TOKEN);
+    fs.rmSync(tempDir,{recursive:true,force:true});
+    return res.json({
+      status:'OK',
+      site_result_url:deploymentUrl,
+      site_admin_url:publicAdminUrl(req, site_slug),
+      site_slug
+    });
+  } catch (error) {
+    console.error('Admin update error:', error.message);
+    return res.status(200).json({status:'ERROR', error:error.message, site_slug});
+  }
+});
+
+function publicAdminUrl(req, slug) {
+  const protocol=(req.headers['x-forwarded-proto'] || req.protocol || 'https').split(',')[0];
+  const host=req.get('host');
+  return `${protocol}://${host}/v1/admin?slug=${encodeURIComponent(slug)}`;
+}
+
+function isAdminAuthorized(req) {
+  if (!VELORA_ADMIN_SECRET) return false;
+  const supplied=String(req.get('x-velora-admin-secret') || req.query.secret || '');
+  return supplied && supplied === VELORA_ADMIN_SECRET;
+}
+
+function briefStorePath(slug) {
+  const dir='/tmp/velora-briefs';
+  fs.mkdirSync(dir,{recursive:true});
+  return path.join(dir, sanitizeProjectName(slug) + '.json');
+}
+
+function saveBrief(slug, brief) {
+  fs.writeFileSync(briefStorePath(slug), JSON.stringify(brief, null, 2));
+}
 
 // Deployment endpoint
 app.post('/v1/deploy', async function (req, res) {
@@ -74,6 +255,7 @@ app.post('/v1/deploy', async function (req, res) {
     fs.mkdirSync(tempDir, { recursive: true });
 
     // Generate static website from site_build_brief
+    saveBrief(sanitizedSlug, site_build_brief);
     await generateStaticSite(tempDir, site_build_brief, sanitizedSlug);
 
     // Ensure Cloudflare Pages project exists
@@ -94,7 +276,7 @@ app.post('/v1/deploy', async function (req, res) {
       status: 'OK',
       client_id: client_id,
       site_result_url: deploymentUrl,
-      site_admin_url: '',
+      site_admin_url: publicAdminUrl(req, sanitizedSlug),
       site_slug: sanitizedSlug,
       template: template,
       mode: mode
