@@ -12,6 +12,7 @@ const PORT = process.env.PORT || 3000;
 
 const CLOUDFLARE_ACCOUNT_ID = process.env.CLOUDFLARE_ACCOUNT_ID;
 const CLOUDFLARE_API_TOKEN = process.env.CLOUDFLARE_API_TOKEN;
+const GENERATOR_VERSION = 'business-site-v2';
 
 app.use(express.json());
 
@@ -20,6 +21,13 @@ app.get('/v1/health', function (req, res) {
   res.json({
     ok: true,
     service: 'Velora Deploy Service'
+  });
+});
+
+app.get('/v1/build', function (req, res) {
+  res.json({
+    ok: true,
+    generator: GENERATOR_VERSION
   });
 });
 
