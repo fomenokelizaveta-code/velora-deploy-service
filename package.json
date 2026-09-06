@@ -14,7 +14,7 @@
     "express": "^4.21.2",
     "axios": "^1.7.7",
     "wrangler": "^3.75.0",
-    "form-data": "^4.0.0"
+    "form-data": "^4.0.0",
+    "playwright-core": "^1.55.0"
   }
 }
-
