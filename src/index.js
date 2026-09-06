@@ -231,53 +231,187 @@ app.post('/v1/deploy', async function (req, res) {
   if (!isDeployAuthorized(req)) {
     return res.status(401).json({status:'ERROR', error:'UNAUTHORIZED'});
   }
-  const body = req.body || {};
 
+  const body = req.body || {};
   const client_id = body.client_id;
   const site_slug = body.site_slug || '';
   const template = body.template || 'vard-baseline';
   const mode = body.mode || 'create_or_update';
   const site_build_brief = body.site_build_brief;
 
-  // Validation
   if (!client_id || !site_build_brief || !site_build_brief.business_name) {
     return res.status(200).json({
       status: 'ERROR',
+      client_id: client_id || '',
       site_result_url: '',
       site_admin_url: '',
       error: 'VALIDATION: client_id and business_name are required',
-      site_slug: site_slug
-    });
-  }
-
-  // Validate environment
-  if (!CLOUDFLARE_ACCOUNT_ID || !CLOUDFLARE_API_TOKEN) {
-    return res.status(200).json({
-      status: 'ERROR',
-      site_result_url: '',
-      site_admin_url: '',
-      error: 'CONFIGURATION: Cloudflare credentials missing',
       site_slug: site_slug,
       template: template,
       mode: mode
     });
   }
 
+  const result = await performSiteDeployment(req, {
+    client_id,
+    site_slug,
+    template,
+    mode,
+    site_build_brief
+  });
+
+  return res.status(200).json(result);
+});
+
+// n8n / VELORA MANAGER bridge.
+// This endpoint returns the exact state fields the manager can upsert into VELORA Clients.
+app.post('/v1/manager/site-build', async function (req, res) {
+  if (!isDeployAuthorized(req)) {
+    return res.status(401).json({status:'ERROR', error_text:'UNAUTHORIZED'});
+  }
+
+  const body = req.body || {};
+  const client_id = cleanText(body.client_id, '');
+  const business_name = cleanText(
+    body.business_name || body.site_build_brief?.business_name,
+    ''
+  );
+  const contact = cleanText(body.contact, '');
+  const requestedStatus = cleanText(body.status, '');
+
+  if (!client_id || !business_name) {
+    return res.status(200).json({
+      client_id,
+      business_name,
+      contact,
+      status: 'ERROR',
+      site_url: '',
+      admin_url: '',
+      screenshots_status: 'PENDING',
+      video_status: 'PENDING',
+      send_status: 'PENDING',
+      manager_comment: 'Site build validation failed',
+      error_text: 'VALIDATION: client_id and business_name are required'
+    });
+  }
+
+  if (requestedStatus && requestedStatus !== 'SITE_BUILDING') {
+    return res.status(200).json({
+      client_id,
+      business_name,
+      contact,
+      status: requestedStatus,
+      site_url: cleanText(body.site_url, ''),
+      admin_url: cleanText(body.admin_url, ''),
+      screenshots_status: cleanText(body.screenshots_status, 'PENDING'),
+      video_status: cleanText(body.video_status, 'PENDING'),
+      send_status: cleanText(body.send_status, 'PENDING'),
+      manager_comment: 'No site build started because status is not SITE_BUILDING',
+      error_text: ''
+    });
+  }
+
+  const site_build_brief = {
+    ...(body.site_build_brief || {}),
+    business_name
+  };
+
+  const result = await performSiteDeployment(req, {
+    client_id,
+    site_slug: cleanText(body.site_slug, ''),
+    template: cleanText(body.template, 'vard-baseline'),
+    mode: cleanText(body.mode, 'create_or_update'),
+    site_build_brief
+  });
+
+  if (result.status === 'OK') {
+    return res.status(200).json({
+      client_id,
+      business_name,
+      contact,
+      status: 'SITE_READY',
+      site_url: result.site_result_url,
+      admin_url: result.site_admin_url,
+      site_slug: result.site_slug,
+      screenshots_status: 'PENDING',
+      video_status: 'PENDING',
+      send_status: 'PENDING',
+      client_reply: cleanText(body.client_reply, ''),
+      manager_comment: 'Site deployed successfully. Next required state: QA.',
+      error_text: ''
+    });
+  }
+
+  return res.status(200).json({
+    client_id,
+    business_name,
+    contact,
+    status: 'ERROR',
+    site_url: '',
+    admin_url: '',
+    site_slug: result.site_slug || '',
+    screenshots_status: 'PENDING',
+    video_status: 'PENDING',
+    send_status: 'PENDING',
+    client_reply: cleanText(body.client_reply, ''),
+    manager_comment: 'Site build failed. Preserve error_text and stop automatic progression.',
+    error_text: result.error || 'UNKNOWN_DEPLOYMENT_ERROR'
+  });
+});
+
+app.get('/v1/manager/schema', function (req, res) {
+  res.json({
+    ok: true,
+    endpoint: '/v1/manager/site-build',
+    method: 'POST',
+    auth_header: 'x-velora-api-key',
+    expected_input: {
+      client_id: 'string, required',
+      business_name: 'string, required unless site_build_brief.business_name exists',
+      contact: 'string, optional',
+      status: 'SITE_BUILDING',
+      site_slug: 'string, optional',
+      template: 'string, optional',
+      mode: 'create_or_update',
+      site_build_brief: 'object, required for real content; business_name is enforced'
+    },
+    success_output_status: 'SITE_READY',
+    failure_output_status: 'ERROR',
+    next_manager_state: 'QA'
+  });
+});
+
+async function performSiteDeployment(req, payload) {
+  const {
+    client_id,
+    site_slug,
+    template,
+    mode,
+    site_build_brief
+  } = payload;
+
+  if (!CLOUDFLARE_ACCOUNT_ID || !CLOUDFLARE_API_TOKEN) {
+    return {
+      status: 'ERROR',
+      client_id,
+      site_result_url: '',
+      site_admin_url: '',
+      error: 'CONFIGURATION: Cloudflare credentials missing',
+      site_slug: site_slug || '',
+      template,
+      mode
+    };
+  }
+
+  let tempDir = '';
+
   try {
-    // Sanitize site_slug for Cloudflare Pages (alphanumeric, hyphens, 1-63 chars)
     const sanitizedSlug = sanitizeProjectName(site_slug || site_build_brief.business_name);
-    
-    // Create temp directory for the generated site
-    const tempDir = path.join('/tmp', `velora-${Date.now()}`);
+    tempDir = path.join('/tmp', `velora-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`);
     fs.mkdirSync(tempDir, { recursive: true });
 
-    // Generate static website from site_build_brief
     await generateStaticSite(tempDir, site_build_brief, sanitizedSlug);
-
-    // Ensure Cloudflare Pages project exists
     const projectName = await ensureCloudflareProject(sanitizedSlug);
-
-    // Deploy to Cloudflare Pages
     const deploymentUrl = await deployToCloudflarePages(
       tempDir,
       projectName,
@@ -285,31 +419,33 @@ app.post('/v1/deploy', async function (req, res) {
       CLOUDFLARE_API_TOKEN
     );
 
-    // Cleanup temp directory
-    fs.rmSync(tempDir, { recursive: true, force: true });
-
-    return res.status(200).json({
+    return {
       status: 'OK',
-      client_id: client_id,
+      client_id,
       site_result_url: deploymentUrl,
       site_admin_url: publicAdminUrl(req, sanitizedSlug),
       site_slug: sanitizedSlug,
-      template: template,
-      mode: mode
-    });
+      template,
+      mode
+    };
   } catch (error) {
     console.error('Deployment error:', error.message);
-    return res.status(200).json({
+    return {
       status: 'ERROR',
+      client_id,
       site_result_url: '',
       site_admin_url: '',
       error: error.message,
-      site_slug: body.site_slug,
-      template: template,
-      mode: mode
-    });
+      site_slug: site_slug || '',
+      template,
+      mode
+    };
+  } finally {
+    if (tempDir) {
+      fs.rmSync(tempDir, { recursive: true, force: true });
+    }
   }
-});
+}
 
 /**
  * Sanitize project name for Cloudflare Pages
