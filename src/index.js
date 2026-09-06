@@ -3,6 +3,10 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const axios = require('axios');
+const { execFile } = require('child_process');
+const { promisify } = require('util');
+
+const execFileAsync = promisify(execFile);
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -312,63 +316,51 @@ async function ensureCloudflareProject(projectName) {
 }
 
 /**
- * Deploy to Cloudflare Pages using direct upload with manifest
+ * Deploy to Cloudflare Pages using Wrangler Direct Upload.
+ * Wrangler handles asset hashing, upload tokens, missing-asset checks,
+ * MIME types, manifests, and the final Pages deployment.
  */
 async function deployToCloudflarePages(siteDir, projectName, accountId, apiToken) {
+  const wranglerBin = path.join(process.cwd(), 'node_modules', '.bin', 'wrangler');
+
   try {
-    // Read files and compute hashes
-    const files = fs.readdirSync(siteDir);
-    const manifest = {};
-
-    for (const file of files) {
-      const filePath = path.join(siteDir, file);
-      const stat = fs.statSync(filePath);
-      
-      if (stat.isFile()) {
-        manifest[`/${file}`] = hashFile(filePath);
+    await execFileAsync(
+      wranglerBin,
+      [
+        'pages',
+        'deploy',
+        siteDir,
+        '--project-name',
+        projectName,
+        '--branch',
+        'main'
+      ],
+      {
+        env: {
+          ...process.env,
+          CLOUDFLARE_ACCOUNT_ID: accountId,
+          CLOUDFLARE_API_TOKEN: apiToken,
+          CI: 'true'
+        },
+        timeout: 180000,
+        maxBuffer: 10 * 1024 * 1024
       }
-    }
-
-    // Create FormData for upload
-    const FormData = require('form-data');
-    const form = new FormData();
-
-    // Add manifest as a plain form field (not a file)
-    form.append('manifest', JSON.stringify(manifest));
-
-    // Add files to form
-    for (const file of files) {
-      const filePath = path.join(siteDir, file);
-      const stat = fs.statSync(filePath);
-      
-      if (stat.isFile()) {
-        form.append('files', fs.createReadStream(filePath), file);
-      }
-    }
-
-    // Upload via Cloudflare API
-    const uploadUrl = `https://api.cloudflare.com/client/v4/accounts/${accountId}/pages/projects/${projectName}/deployments`;
-
-    const uploadResponse = await axios.post(uploadUrl, form, {
-      headers: {
-        ...form.getHeaders(),
-        'Authorization': `Bearer ${apiToken}`
-      }
-    });
-
-    if (!uploadResponse.data.success) {
-      throw new Error(`Upload failed: ${uploadResponse.data.errors?.[0]?.message || 'Unknown error'}`);
-    }
+    );
 
     const deploymentUrl = `https://${projectName}.pages.dev`;
-
     console.log(`Deployment successful: ${deploymentUrl}`);
     return deploymentUrl;
   } catch (error) {
-    if (error.response?.data?.errors) {
-      throw new Error(`Cloudflare deployment error: ${error.response.data.errors[0]?.message}`);
-    }
-    throw new Error(`Deployment failed: ${error.message}`);
+    const detail = [
+      error.stderr,
+      error.stdout,
+      error.message
+    ]
+      .filter(Boolean)
+      .join('\n')
+      .slice(0, 4000);
+
+    throw new Error(`Cloudflare Wrangler deployment failed: ${detail}`);
   }
 }
 
