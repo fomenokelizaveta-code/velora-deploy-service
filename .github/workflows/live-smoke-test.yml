@@ -12,6 +12,8 @@ jobs:
   live-smoke-test:
     runs-on: ubuntu-latest
     timeout-minutes: 8
+    env:
+      VELORA_API_KEY: ${{ secrets.VELORA_API_KEY }}
     steps:
       - name: Wait for Railway business generator release
         shell: bash
@@ -45,12 +47,12 @@ jobs:
           echo "Unauthorized deploy correctly rejected."
 
       - name: Create real Cloudflare Pages test deployment
-        if: ${{ secrets.VELORA_API_KEY != '' }}
+        if: env.VELORA_API_KEY != ''
         id: deploy
         shell: bash
         run: |
           set -euo pipefail
-          RESPONSE="$(curl -fsS --max-time 180 -X POST             https://velora-deploy-service-production.up.railway.app/v1/deploy             -H 'Content-Type: application/json'             -H \"x-velora-api-key: ${{ secrets.VELORA_API_KEY }}\"             --data '{
+          RESPONSE="$(curl -fsS --max-time 180 -X POST             https://velora-deploy-service-production.up.railway.app/v1/deploy             -H 'Content-Type: application/json'             -H "x-velora-api-key: $VELORA_API_KEY"             --data '{
               "client_id":"velora-test-001",
               "site_slug":"velora-test-site",
               "template":"vard-baseline",
@@ -111,7 +113,7 @@ jobs:
           PY
 
       - name: Verify live Pages site serves generated HTML
-        if: ${{ secrets.VELORA_API_KEY != '' }}
+        if: env.VELORA_API_KEY != ''
         shell: bash
         run: |
           set -euo pipefail
@@ -135,7 +137,7 @@ jobs:
 
 
       - name: Verify protected admin page opens
-        if: ${{ secrets.VELORA_API_KEY != '' }}
+        if: env.VELORA_API_KEY != ''
         shell: bash
         env:
           ADMIN_BASE: ${{ steps.deploy.outputs.admin_base }}
@@ -149,7 +151,7 @@ jobs:
           echo "Protected admin page verified."
 
       - name: Verify admin can read current deployed brief
-        if: ${{ secrets.VELORA_API_KEY != '' }}
+        if: env.VELORA_API_KEY != ''
         shell: bash
         env:
           ADMIN_BASE: ${{ steps.deploy.outputs.admin_base }}
@@ -173,7 +175,7 @@ jobs:
           PY
 
       - name: Update site through protected admin API
-        if: ${{ secrets.VELORA_API_KEY != '' }}
+        if: env.VELORA_API_KEY != ''
         id: admin_update
         shell: bash
         env:
@@ -218,7 +220,7 @@ jobs:
           PY
 
       - name: Verify admin changes reached live site
-        if: ${{ secrets.VELORA_API_KEY != '' }}
+        if: env.VELORA_API_KEY != ''
         shell: bash
         run: |
           set -euo pipefail
