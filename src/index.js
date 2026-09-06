@@ -15,6 +15,7 @@ const CLOUDFLARE_ACCOUNT_ID = process.env.CLOUDFLARE_ACCOUNT_ID;
 const CLOUDFLARE_API_TOKEN = process.env.CLOUDFLARE_API_TOKEN;
 const GENERATOR_VERSION = 'business-site-v3-admin';
 const VELORA_ADMIN_SECRET = process.env.VELORA_ADMIN_SECRET || '';
+const VELORA_API_KEY = process.env.VELORA_API_KEY || '';
 
 app.use(express.json());
 
@@ -188,6 +189,17 @@ app.post('/v1/admin/update', async function (req, res) {
   }
 });
 
+function isDeployAuthorized(req) {
+  if (!VELORA_API_KEY) return false;
+  const supplied = String(req.get('x-velora-api-key') || '');
+  if (!supplied || supplied.length !== VELORA_API_KEY.length) return false;
+  try {
+    return crypto.timingSafeEqual(Buffer.from(supplied), Buffer.from(VELORA_API_KEY));
+  } catch {
+    return false;
+  }
+}
+
 function siteAdminToken(slug) {
   if (!VELORA_ADMIN_SECRET) return '';
   return crypto
@@ -216,6 +228,9 @@ function isSiteAuthorized(slug, supplied) {
 
 // Deployment endpoint
 app.post('/v1/deploy', async function (req, res) {
+  if (!isDeployAuthorized(req)) {
+    return res.status(401).json({status:'ERROR', error:'UNAUTHORIZED'});
+  }
   const body = req.body || {};
 
   const client_id = body.client_id;
