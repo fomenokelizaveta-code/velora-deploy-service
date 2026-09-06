@@ -333,11 +333,8 @@ async function deployToCloudflarePages(siteDir, projectName, accountId, apiToken
     const FormData = require('form-data');
     const form = new FormData();
 
-    // Add manifest as JSON
-    form.append('manifest', JSON.stringify(manifest), {
-      filename: 'manifest.json',
-      contentType: 'application/json'
-    });
+    // Add manifest as a plain form field (not a file)
+    form.append('manifest', JSON.stringify(manifest));
 
     // Add files to form
     for (const file of files) {
