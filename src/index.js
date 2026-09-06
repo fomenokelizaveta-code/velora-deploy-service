@@ -5,6 +5,7 @@ const crypto = require('crypto');
 const axios = require('axios');
 const { execFile } = require('child_process');
 const { promisify } = require('util');
+const { chromium } = require('playwright-core');
 
 const execFileAsync = promisify(execFile);
 
@@ -536,6 +537,238 @@ async function runSiteQa({site_url,business_name,expected_phone,expected_contact
   return report;
 }
 
+
+app.post('/v1/manager/materials', async function (req, res) {
+  if (!isDeployAuthorized(req)) {
+    return res.status(401).json({status:'ERROR', error_text:'UNAUTHORIZED'});
+  }
+
+  const body=req.body||{};
+  const client_id=cleanText(body.client_id,'');
+  const business_name=cleanText(body.business_name,'');
+  const site_url=cleanText(body.site_url,'');
+  const site_slug=sanitizeProjectName(body.site_slug || business_name || 'site');
+  const current_status=cleanText(body.status,'');
+  const qa_status=cleanText(body.qa_status,'').toUpperCase();
+
+  if (!client_id || !site_url) {
+    return res.status(200).json({
+      client_id,
+      status:'ERROR',
+      screenshots_status:'ERROR',
+      video_status:'ERROR',
+      manager_comment:'Materials generation could not start.',
+      error_text:'VALIDATION: client_id and site_url are required'
+    });
+  }
+
+  if (current_status !== 'QA' || qa_status !== 'PASSED') {
+    return res.status(200).json({
+      client_id,
+      business_name,
+      status:current_status || 'QA',
+      qa_status,
+      screenshots_status:cleanText(body.screenshots_status,'PENDING'),
+      video_status:cleanText(body.video_status,'PENDING'),
+      send_status:cleanText(body.send_status,'PENDING'),
+      manager_comment:'Materials generation skipped: QA must be PASSED while status is QA.',
+      error_text:''
+    });
+  }
+
+  let tempDir='';
+  let browser=null;
+
+  try {
+    tempDir=path.join('/tmp', `velora-materials-${Date.now()}-${Math.random().toString(36).slice(2,8)}`);
+    fs.mkdirSync(tempDir,{recursive:true});
+
+    browser=await chromium.launch({
+      headless:true,
+      executablePath:process.env.CHROMIUM_PATH || '/usr/bin/chromium',
+      args:['--no-sandbox','--disable-dev-shm-usage','--disable-gpu']
+    });
+
+    const context=await browser.newContext({
+      viewport:{width:390,height:693},
+      deviceScaleFactor:1,
+      isMobile:true,
+      hasTouch:true,
+      userAgent:'Velora Materials Bot/1.0'
+    });
+    const page=await context.newPage();
+
+    await page.goto(site_url,{waitUntil:'networkidle',timeout:45000});
+    await page.evaluate(async()=>{
+      if(document.fonts&&document.fonts.ready){try{await document.fonts.ready;}catch(e){}}
+      await new Promise(r=>setTimeout(r,800));
+    });
+
+    const screenshotFiles=await captureDistinctScreenshots(page,tempDir);
+    const videoFile=await captureScrollVideo(page,tempDir);
+
+    await context.close();
+    await browser.close();
+    browser=null;
+
+    const materialsProject=materialsProjectName(site_slug);
+    await ensureCloudflareProject(materialsProject);
+    const materialsRoot=await deployToCloudflarePages(
+      tempDir,
+      materialsProject,
+      CLOUDFLARE_ACCOUNT_ID,
+      CLOUDFLARE_API_TOKEN
+    );
+
+    const screenshotUrls=screenshotFiles.map(name=>materialsRoot+'/'+encodeURIComponent(name));
+    const videoUrl=materialsRoot+'/'+encodeURIComponent(videoFile);
+
+    return res.status(200).json({
+      client_id,
+      business_name,
+      status:'QA',
+      qa_status:'PASSED',
+      site_url,
+      site_slug,
+      screenshots_status:'READY',
+      video_status:'READY',
+      send_status:cleanText(body.send_status,'PENDING'),
+      screenshots_urls:screenshotUrls,
+      video_url:videoUrl,
+      materials_url:materialsRoot,
+      manager_comment:'Screenshots and MP4 video are ready. Client may advance to MATERIALS_READY.',
+      error_text:''
+    });
+  } catch(error) {
+    console.error('Materials generation error:',error.message);
+    return res.status(200).json({
+      client_id,
+      business_name,
+      status:'QA',
+      qa_status:'PASSED',
+      site_url,
+      site_slug,
+      screenshots_status:'ERROR',
+      video_status:'ERROR',
+      send_status:cleanText(body.send_status,'PENDING'),
+      manager_comment:'Materials generation failed. Keep client in QA.',
+      error_text:'MATERIALS_ERROR: '+error.message
+    });
+  } finally {
+    if(browser){try{await browser.close();}catch(e){}}
+    if(tempDir){fs.rmSync(tempDir,{recursive:true,force:true});}
+  }
+});
+
+async function captureDistinctScreenshots(page,outDir) {
+  const filenames=[];
+  const hashes=new Set();
+  const sectionOffsets=await page.evaluate(()=>{
+    const els=[...document.querySelectorAll('main section')];
+    const offsets=els.map(el=>Math.max(0,Math.floor(el.getBoundingClientRect().top+window.scrollY)));
+    const max=Math.max(0,document.documentElement.scrollHeight-window.innerHeight);
+    if(!offsets.length){
+      return [0,Math.floor(max*.25),Math.floor(max*.5),Math.floor(max*.75),max];
+    }
+    const unique=[...new Set([0,...offsets,max])];
+    return unique.slice(0,8);
+  });
+
+  for(const y of sectionOffsets){
+    if(filenames.length>=5) break;
+    await page.evaluate(v=>window.scrollTo({top:v,behavior:'instant'}),y);
+    await page.waitForTimeout(350);
+    const buf=await page.screenshot({type:'png',fullPage:false});
+    const hash=crypto.createHash('sha1').update(buf).digest('hex');
+    if(hashes.has(hash)) continue;
+    hashes.add(hash);
+    const name=`screenshot-${filenames.length+1}.png`;
+    fs.writeFileSync(path.join(outDir,name),buf);
+    filenames.push(name);
+  }
+
+  if(filenames.length<3){
+    const max=await page.evaluate(()=>Math.max(0,document.documentElement.scrollHeight-window.innerHeight));
+    for(const frac of [0,.25,.5,.75,1]){
+      if(filenames.length>=5) break;
+      await page.evaluate(v=>window.scrollTo({top:v,behavior:'instant'}),Math.floor(max*frac));
+      await page.waitForTimeout(300);
+      const buf=await page.screenshot({type:'png',fullPage:false});
+      const hash=crypto.createHash('sha1').update(buf).digest('hex');
+      if(hashes.has(hash)) continue;
+      hashes.add(hash);
+      const name=`screenshot-${filenames.length+1}.png`;
+      fs.writeFileSync(path.join(outDir,name),buf);
+      filenames.push(name);
+    }
+  }
+
+  if(!filenames.length) throw new Error('No screenshots captured');
+  return filenames;
+}
+
+async function captureScrollVideo(page,outDir) {
+  const framesDir=path.join(outDir,'frames');
+  fs.mkdirSync(framesDir,{recursive:true});
+
+  const fps=8;
+  const seconds=24;
+  const totalFrames=fps*seconds;
+  const maxScroll=await page.evaluate(()=>Math.max(0,document.documentElement.scrollHeight-window.innerHeight));
+  const faqExists=await page.locator('details summary').count();
+
+  for(let i=0;i<totalFrames;i++){
+    const t=i/(totalFrames-1);
+    const eased=t<.5 ? 2*t*t : 1-Math.pow(-2*t+2,2)/2;
+    const y=Math.floor(maxScroll*eased);
+    await page.evaluate(v=>window.scrollTo({top:v,behavior:'instant'}),y);
+
+    if(faqExists && i===Math.floor(totalFrames*.62)){
+      try{
+        const first=page.locator('details summary').first();
+        await first.scrollIntoViewIfNeeded();
+        await first.click({timeout:2000});
+      }catch(e){}
+    }
+
+    await page.waitForTimeout(90);
+    const frameName=String(i+1).padStart(4,'0')+'.jpg';
+    await page.screenshot({
+      path:path.join(framesDir,frameName),
+      type:'jpeg',
+      quality:82,
+      fullPage:false
+    });
+  }
+
+  const videoName='site-walkthrough.mp4';
+  const videoPath=path.join(outDir,videoName);
+  await execFileAsync('ffmpeg',[
+    '-y',
+    '-framerate',String(fps),
+    '-i',path.join(framesDir,'%04d.jpg'),
+    '-c:v','libx264',
+    '-preset','veryfast',
+    '-crf','27',
+    '-pix_fmt','yuv420p',
+    '-movflags','+faststart',
+    videoPath
+  ],{timeout:180000,maxBuffer:10*1024*1024});
+
+  fs.rmSync(framesDir,{recursive:true,force:true});
+
+  const stat=fs.statSync(videoPath);
+  if(!stat.size) throw new Error('Video file is empty');
+  if(stat.size>22*1024*1024) throw new Error('Video file is too large for Pages direct upload');
+  return videoName;
+}
+
+function materialsProjectName(siteSlug){
+  const hash=crypto.createHash('sha1').update(String(siteSlug)).digest('hex').slice(0,8);
+  const base=sanitizeProjectName(siteSlug).slice(0,44);
+  return sanitizeProjectName(`materials-${base}-${hash}`);
+}
+
 app.get('/v1/manager/schema', function (req, res) {
   res.json({
     ok: true,
@@ -556,7 +789,9 @@ app.get('/v1/manager/schema', function (req, res) {
     failure_output_status: 'ERROR',
     next_manager_state: 'QA',
     qa_endpoint: '/v1/manager/qa',
-    qa_success: 'qa_status=PASSED while status stays QA until materials are ready'
+    qa_success: 'qa_status=PASSED while status stays QA until materials are ready',
+    materials_endpoint: '/v1/manager/materials',
+    materials_success: 'screenshots_status=READY and video_status=READY while status stays QA'
   });
 });
 
