@@ -1,7 +1,6 @@
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
-const crypto = require('crypto');
 const axios = require('axios');
 const { execFile } = require('child_process');
 const { promisify } = require('util');
@@ -125,136 +124,741 @@ function sanitizeProjectName(name) {
 }
 
 /**
- * Calculate SHA256 hash of a file
- */
-function hashFile(filePath) {
-  const content = fs.readFileSync(filePath);
-  return crypto.createHash('sha256').update(content).digest('hex');
-}
-
-/**
- * Generate a static HTML website from site_build_brief
+ * Generate a polished one-page business website from site_build_brief.
+ * Sections are data-driven: we never invent services, prices, reviews, or contacts.
  */
 async function generateStaticSite(outDir, brief, projectName) {
-  const businessName = brief.business_name || 'Business';
-  const businessDescription = brief.business_description || 'Welcome to our site';
+  const businessName = cleanText(brief.business_name, 'Business');
+  const businessDescription = cleanText(brief.business_description, '');
+  const eyebrow = cleanText(brief.eyebrow || brief.category || brief.city, '');
+  const headline = cleanText(brief.headline, businessName);
+  const subheadline = cleanText(
+    brief.subheadline,
+    businessDescription || 'Информация, услуги и контакты в одном месте.'
+  );
+
+  const phone = cleanText(brief.phone, '');
+  const phoneHref = phone ? 'tel:' + phone.replace(/[^+\d]/g, '') : '';
+  const telegramUrl = normalizeTelegramUrl(brief.telegram_url || brief.telegram);
+  const whatsappUrl = safeUrl(brief.whatsapp_url || brief.whatsapp);
+  const address = cleanText(brief.address, '');
+  const workingHours = cleanText(brief.working_hours || brief.hours, '');
+  const heroImage = normalizeImageUrl(brief.hero_image || brief.hero_image_url);
+  const logoUrl = normalizeImageUrl(brief.logo_url);
+  const gallery = normalizeImages(brief.gallery_images || brief.gallery || []);
+  const services = normalizeCards(brief.services || []);
+  const products = normalizeCards(brief.products || []);
+  const benefits = normalizeCards(brief.benefits || []);
+  const reviews = normalizeReviews(brief.reviews || []);
+  const faq = normalizeFaq(brief.faq || []);
+
+  const primaryActionUrl = safeUrl(brief.primary_action_url) || phoneHref || telegramUrl || whatsappUrl;
+  const primaryActionLabel = cleanText(
+    brief.primary_action_label,
+    phone ? 'Позвонить' : telegramUrl ? 'Написать в Telegram' : 'Связаться'
+  );
+  const secondaryActionUrl = safeUrl(brief.secondary_action_url) || telegramUrl || whatsappUrl;
+  const secondaryActionLabel = cleanText(
+    brief.secondary_action_label,
+    telegramUrl ? 'Telegram' : whatsappUrl ? 'WhatsApp' : ''
+  );
+
+  const theme = {
+    accent: safeColor(brief.theme?.accent, '#B58A62'),
+    accent2: safeColor(brief.theme?.accent2, '#7C5C45'),
+    background: safeColor(brief.theme?.background, '#F7F4EF'),
+    surface: safeColor(brief.theme?.surface, '#FFFFFF'),
+    text: safeColor(brief.theme?.text, '#171717'),
+    muted: safeColor(brief.theme?.muted, '#706B66')
+  };
+
+  const seoTitle = cleanText(brief.seo?.title, businessName);
+  const seoDescription = cleanText(
+    brief.seo?.description,
+    businessDescription || subheadline
+  ).slice(0, 180);
+
+  const servicesSection = renderCardSection(
+    'services',
+    cleanText(brief.services_title, 'Услуги'),
+    cleanText(brief.services_subtitle, ''),
+    services,
+    'service'
+  );
+
+  const productsSection = renderCardSection(
+    'products',
+    cleanText(brief.products_title, 'Предложения'),
+    cleanText(brief.products_subtitle, ''),
+    products,
+    'product'
+  );
+
+  const benefitsSection = benefits.length
+    ? `<section class="section section-soft" id="benefits">
+        <div class="shell">
+          <div class="section-head">
+            <p class="kicker">${escapeHtml(cleanText(brief.benefits_kicker, 'Почему выбирают нас'))}</p>
+            <h2>${escapeHtml(cleanText(brief.benefits_title, 'Главное — в деталях'))}</h2>
+          </div>
+          <div class="benefit-grid">
+            ${benefits.map((item, index) => `
+              <article class="benefit-card">
+                <span class="benefit-number">${String(index + 1).padStart(2, '0')}</span>
+                <h3>${escapeHtml(item.title)}</h3>
+                ${item.description ? `<p>${escapeHtml(item.description)}</p>` : ''}
+              </article>
+            `).join('')}
+          </div>
+        </div>
+      </section>`
+    : '';
+
+  const gallerySection = gallery.length
+    ? `<section class="section" id="gallery">
+        <div class="shell">
+          <div class="section-head split">
+            <div>
+              <p class="kicker">${escapeHtml(cleanText(brief.gallery_kicker, 'Галерея'))}</p>
+              <h2>${escapeHtml(cleanText(brief.gallery_title, 'Посмотрите ближе'))}</h2>
+            </div>
+            ${cleanText(brief.gallery_subtitle, '') ? `<p class="section-copy">${escapeHtml(cleanText(brief.gallery_subtitle, ''))}</p>` : ''}
+          </div>
+          <div class="gallery-grid">
+            ${gallery.map((image, index) => `
+              <figure class="gallery-item gallery-item-${(index % 5) + 1}">
+                <img src="${escapeAttr(image.url)}" alt="${escapeAttr(image.alt || businessName)}" loading="lazy">
+              </figure>
+            `).join('')}
+          </div>
+        </div>
+      </section>`
+    : '';
+
+  const reviewsSection = reviews.length
+    ? `<section class="section section-dark" id="reviews">
+        <div class="shell">
+          <div class="section-head light">
+            <p class="kicker">Отзывы</p>
+            <h2>${escapeHtml(cleanText(brief.reviews_title, 'Что говорят клиенты'))}</h2>
+          </div>
+          <div class="review-grid">
+            ${reviews.map(review => `
+              <article class="review-card">
+                <div class="stars" aria-label="${review.rating} из 5">${'★'.repeat(review.rating)}${'☆'.repeat(5 - review.rating)}</div>
+                <p class="review-text">“${escapeHtml(review.text)}”</p>
+                <p class="review-author">${escapeHtml(review.name)}</p>
+              </article>
+            `).join('')}
+          </div>
+        </div>
+      </section>`
+    : '';
+
+  const faqSection = faq.length
+    ? `<section class="section" id="faq">
+        <div class="shell shell-narrow">
+          <div class="section-head">
+            <p class="kicker">FAQ</p>
+            <h2>${escapeHtml(cleanText(brief.faq_title, 'Частые вопросы'))}</h2>
+          </div>
+          <div class="faq-list">
+            ${faq.map(item => `
+              <details class="faq-item">
+                <summary>${escapeHtml(item.question)}</summary>
+                <p>${escapeHtml(item.answer)}</p>
+              </details>
+            `).join('')}
+          </div>
+        </div>
+      </section>`
+    : '';
+
+  const contactRows = [
+    phone ? `<a href="${escapeAttr(phoneHref)}"><span>Телефон</span><strong>${escapeHtml(phone)}</strong></a>` : '',
+    address ? `<div><span>Адрес</span><strong>${escapeHtml(address)}</strong></div>` : '',
+    workingHours ? `<div><span>Режим работы</span><strong>${escapeHtml(workingHours)}</strong></div>` : ''
+  ].filter(Boolean).join('');
+
+  const contactSection = (contactRows || primaryActionUrl || secondaryActionUrl)
+    ? `<section class="section contact-section" id="contacts">
+        <div class="shell">
+          <div class="contact-card">
+            <div class="contact-copy">
+              <p class="kicker">Контакты</p>
+              <h2>${escapeHtml(cleanText(brief.contact_title, 'Будем на связи'))}</h2>
+              ${cleanText(brief.contact_text, '') ? `<p>${escapeHtml(cleanText(brief.contact_text, ''))}</p>` : ''}
+              <div class="contact-actions">
+                ${primaryActionUrl ? `<a class="button button-primary" href="${escapeAttr(primaryActionUrl)}">${escapeHtml(primaryActionLabel)}</a>` : ''}
+                ${secondaryActionUrl && secondaryActionLabel && secondaryActionUrl !== primaryActionUrl
+                  ? `<a class="button button-ghost" href="${escapeAttr(secondaryActionUrl)}">${escapeHtml(secondaryActionLabel)}</a>`
+                  : ''}
+              </div>
+            </div>
+            ${contactRows ? `<div class="contact-list">${contactRows}</div>` : ''}
+          </div>
+        </div>
+      </section>`
+    : '';
 
   const html = `<!DOCTYPE html>
-<html lang="en">
+<html lang="${escapeAttr(cleanText(brief.language, 'ru'))}">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${escapeHtml(businessName)}</title>
+  <title>${escapeHtml(seoTitle)}</title>
+  <meta name="description" content="${escapeAttr(seoDescription)}">
+  <meta name="theme-color" content="${escapeAttr(theme.background)}">
+  <meta property="og:title" content="${escapeAttr(seoTitle)}">
+  <meta property="og:description" content="${escapeAttr(seoDescription)}">
+  <meta property="og:type" content="website">
+  ${heroImage ? `<meta property="og:image" content="${escapeAttr(heroImage)}">` : ''}
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
+    :root {
+      --accent: ${theme.accent};
+      --accent-2: ${theme.accent2};
+      --bg: ${theme.background};
+      --surface: ${theme.surface};
+      --text: ${theme.text};
+      --muted: ${theme.muted};
+      --line: color-mix(in srgb, var(--text) 12%, transparent);
+      --shadow: 0 22px 60px rgba(24, 20, 17, .10);
+      --radius: 28px;
     }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-      line-height: 1.6;
-      color: #333;
+      margin: 0;
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
     }
-    header {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    a { color: inherit; text-decoration: none; }
+    img { display: block; width: 100%; }
+    button, a { -webkit-tap-highlight-color: transparent; }
+    .shell { width: min(1180px, calc(100% - 40px)); margin: 0 auto; }
+    .shell-narrow { width: min(860px, calc(100% - 40px)); margin: 0 auto; }
+
+    .site-header {
+      position: absolute;
+      inset: 0 0 auto;
+      z-index: 20;
+      padding: 22px 0;
       color: white;
-      padding: 1rem;
-      text-align: center;
     }
-    header h1 {
-      font-size: 2.5rem;
-      margin-bottom: 0.5rem;
-    }
-    .hero {
-      background: linear-gradient(180deg, #f5f7fa 0%, #c3cfe2 100%);
-      padding: 4rem 1rem;
-      text-align: center;
-      min-height: 400px;
+    .header-row {
       display: flex;
       align-items: center;
-      justify-content: center;
-      flex-direction: column;
+      justify-content: space-between;
+      gap: 24px;
     }
-    .hero h2 {
-      font-size: 2rem;
-      margin-bottom: 1rem;
-      color: #333;
+    .brand { display: flex; align-items: center; gap: 12px; font-weight: 700; letter-spacing: .01em; }
+    .brand-logo {
+      width: 44px; height: 44px; border-radius: 50%;
+      object-fit: cover; background: rgba(255,255,255,.14);
+      border: 1px solid rgba(255,255,255,.28);
     }
-    .hero p {
-      font-size: 1.2rem;
-      color: #666;
-      max-width: 600px;
+    .brand-mark {
+      width: 44px; height: 44px; border-radius: 50%;
+      display: grid; place-items: center;
+      background: rgba(255,255,255,.14);
+      border: 1px solid rgba(255,255,255,.28);
+      font-weight: 800;
     }
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 2rem 1rem;
-    }
-    .features {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 2rem;
-      margin: 3rem 0;
-    }
-    .feature {
-      padding: 1.5rem;
-      background: #f8f9fa;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    }
-    .feature h3 {
-      margin-bottom: 0.5rem;
-      color: #667eea;
-    }
-    footer {
-      background: #333;
+    .nav { display: flex; gap: 24px; font-size: 14px; }
+    .nav a { opacity: .82; }
+    .nav a:hover { opacity: 1; }
+
+    .hero {
+      position: relative;
+      min-height: 760px;
+      display: flex;
+      align-items: end;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 78% 18%, color-mix(in srgb, var(--accent) 45%, transparent), transparent 34%),
+        linear-gradient(145deg, #111 0%, #28221d 100%);
       color: white;
-      text-align: center;
-      padding: 2rem;
-      margin-top: 3rem;
     }
-    footer p {
-      margin: 0.5rem 0;
+    .hero-media {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: saturate(.92) contrast(1.02);
+    }
+    .hero-overlay {
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(90deg, rgba(10,9,8,.76) 0%, rgba(10,9,8,.44) 48%, rgba(10,9,8,.10) 100%),
+        linear-gradient(0deg, rgba(10,9,8,.70) 0%, transparent 46%);
+    }
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      padding: 180px 0 84px;
+      max-width: 760px;
+    }
+    .eyebrow, .kicker {
+      margin: 0 0 18px;
+      text-transform: uppercase;
+      letter-spacing: .20em;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .eyebrow { color: rgba(255,255,255,.72); }
+    .kicker { color: var(--accent-2); }
+    .hero h1 {
+      margin: 0;
+      max-width: 820px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-weight: 500;
+      font-size: clamp(54px, 8vw, 108px);
+      line-height: .92;
+      letter-spacing: -.045em;
+    }
+    .hero-lead {
+      margin: 28px 0 0;
+      max-width: 620px;
+      color: rgba(255,255,255,.82);
+      font-size: clamp(18px, 2vw, 23px);
+    }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 34px; }
+    .button {
+      min-height: 52px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 0 22px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 14px;
+      transition: transform .2s ease, opacity .2s ease;
+    }
+    .button:hover { transform: translateY(-2px); }
+    .button-primary { background: var(--accent); color: white; }
+    .button-light { background: white; color: #161310; }
+    .button-ghost { border: 1px solid var(--line); background: transparent; }
+    .hero .button-ghost { border-color: rgba(255,255,255,.34); color: white; }
+
+    .section { padding: 104px 0; }
+    .section-soft { background: color-mix(in srgb, var(--accent) 8%, var(--bg)); }
+    .section-dark { background: #171512; color: white; }
+    .section-head { max-width: 760px; margin-bottom: 48px; }
+    .section-head.split {
+      max-width: none;
+      display: grid;
+      grid-template-columns: 1fr minmax(260px, 440px);
+      gap: 40px;
+      align-items: end;
+    }
+    .section-head h2 {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(40px, 5vw, 68px);
+      font-weight: 500;
+      line-height: 1;
+      letter-spacing: -.035em;
+    }
+    .section-head.light .kicker { color: #d8b28b; }
+    .section-copy { margin: 0; color: var(--muted); font-size: 17px; }
+
+    .intro {
+      display: grid;
+      grid-template-columns: minmax(0, 1.25fr) minmax(280px, .75fr);
+      gap: 70px;
+      align-items: start;
+    }
+    .intro-copy {
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(30px, 4vw, 54px);
+      line-height: 1.1;
+      letter-spacing: -.025em;
+      margin: 0;
+    }
+    .intro-meta {
+      padding-top: 10px;
+      color: var(--muted);
+      font-size: 16px;
+    }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+    }
+    .business-card {
+      min-height: 360px;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      border-radius: var(--radius);
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+    .card-media { height: 220px; object-fit: cover; }
+    .card-body { padding: 26px; display: flex; flex: 1; flex-direction: column; }
+    .card-body h3 { margin: 0; font-size: 23px; letter-spacing: -.02em; }
+    .card-body p { margin: 12px 0 0; color: var(--muted); }
+    .price { margin-top: auto !important; padding-top: 20px; color: var(--text) !important; font-weight: 800; }
+
+    .benefit-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+    .benefit-card {
+      padding: 30px;
+      min-height: 230px;
+      border-radius: var(--radius);
+      background: rgba(255,255,255,.72);
+      border: 1px solid rgba(0,0,0,.05);
+    }
+    .benefit-number { font-size: 12px; color: var(--muted); letter-spacing: .16em; }
+    .benefit-card h3 { margin: 52px 0 10px; font-size: 24px; }
+    .benefit-card p { margin: 0; color: var(--muted); }
+
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: 1.25fr .75fr .75fr;
+      grid-auto-rows: 260px;
+      gap: 14px;
+    }
+    .gallery-item { margin: 0; overflow: hidden; border-radius: 24px; background: #ddd; }
+    .gallery-item img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s ease; }
+    .gallery-item:hover img { transform: scale(1.025); }
+    .gallery-item-1 { grid-row: span 2; }
+    .gallery-item-4 { grid-column: span 2; }
+
+    .review-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .review-card {
+      padding: 30px;
+      min-height: 280px;
+      border-radius: var(--radius);
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.12);
+    }
+    .stars { color: #d8b28b; letter-spacing: .12em; }
+    .review-text { margin: 42px 0 28px; font-family: Georgia, serif; font-size: 24px; line-height: 1.3; }
+    .review-author { margin: 0; color: rgba(255,255,255,.64); }
+
+    .faq-list { border-top: 1px solid var(--line); }
+    .faq-item { border-bottom: 1px solid var(--line); padding: 22px 0; }
+    .faq-item summary { cursor: pointer; font-size: 20px; font-weight: 700; list-style: none; }
+    .faq-item summary::-webkit-details-marker { display: none; }
+    .faq-item p { color: var(--muted); max-width: 720px; }
+
+    .contact-card {
+      display: grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap: 40px;
+      padding: 52px;
+      border-radius: 34px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+    .contact-card h2 {
+      margin: 0;
+      font-family: Georgia, serif;
+      font-size: clamp(42px, 5vw, 66px);
+      line-height: 1;
+      font-weight: 500;
+      letter-spacing: -.035em;
+    }
+    .contact-copy > p:not(.kicker) { color: var(--muted); max-width: 560px; }
+    .contact-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
+    .contact-list { display: grid; align-content: start; border-top: 1px solid var(--line); }
+    .contact-list > * {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding: 18px 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .contact-list span { color: var(--muted); font-size: 13px; }
+    .contact-list strong { font-size: 17px; }
+
+    footer { padding: 34px 0 96px; color: var(--muted); font-size: 13px; }
+    .footer-row { display: flex; justify-content: space-between; gap: 24px; }
+
+    .mobile-actions {
+      display: none;
+      position: fixed;
+      z-index: 40;
+      left: 12px;
+      right: 12px;
+      bottom: max(12px, env(safe-area-inset-bottom));
+      gap: 8px;
+      padding: 8px;
+      border-radius: 999px;
+      background: rgba(20,18,16,.88);
+      backdrop-filter: blur(16px);
+      box-shadow: 0 12px 40px rgba(0,0,0,.24);
+    }
+    .mobile-actions a { flex: 1; min-height: 46px; }
+
+    @media (max-width: 900px) {
+      .nav { display: none; }
+      .hero { min-height: 690px; }
+      .hero-content { padding-bottom: 58px; }
+      .section { padding: 78px 0; }
+      .intro,
+      .section-head.split,
+      .contact-card { grid-template-columns: 1fr; gap: 30px; }
+      .card-grid,
+      .benefit-grid,
+      .review-grid { grid-template-columns: 1fr 1fr; }
+      .gallery-grid { grid-template-columns: 1fr 1fr; grid-auto-rows: 220px; }
+      .gallery-item-1 { grid-row: span 1; }
+      .gallery-item-4 { grid-column: span 1; }
+      .contact-card { padding: 34px; }
+    }
+
+    @media (max-width: 620px) {
+      .shell, .shell-narrow { width: min(100% - 28px, 1180px); }
+      .site-header { padding-top: 16px; }
+      .brand span { max-width: 220px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .hero { min-height: 650px; }
+      .hero-content { padding: 150px 0 46px; }
+      .hero h1 { font-size: clamp(48px, 17vw, 76px); }
+      .hero-lead { font-size: 18px; }
+      .hero-actions .button { width: 100%; }
+      .section { padding: 66px 0; }
+      .section-head { margin-bottom: 34px; }
+      .card-grid,
+      .benefit-grid,
+      .review-grid,
+      .gallery-grid { grid-template-columns: 1fr; }
+      .gallery-grid { grid-auto-rows: 300px; }
+      .business-card { min-height: 0; }
+      .card-media { height: 260px; }
+      .contact-card { padding: 26px; border-radius: 26px; }
+      .footer-row { flex-direction: column; }
+      .mobile-actions { display: flex; }
+      footer { padding-bottom: 106px; }
     }
   </style>
 </head>
 <body>
-  <header>
-    <h1>${escapeHtml(businessName)}</h1>
+  <header class="site-header">
+    <div class="shell header-row">
+      <a class="brand" href="#top" aria-label="${escapeAttr(businessName)}">
+        ${logoUrl
+          ? `<img class="brand-logo" src="${escapeAttr(logoUrl)}" alt="${escapeAttr(businessName)}">`
+          : `<span class="brand-mark">${escapeHtml(businessName.slice(0, 1).toUpperCase())}</span>`}
+        <span>${escapeHtml(businessName)}</span>
+      </a>
+      <nav class="nav">
+        ${businessDescription ? '<a href="#about">О нас</a>' : ''}
+        ${services.length ? '<a href="#services">Услуги</a>' : ''}
+        ${products.length ? '<a href="#products">Предложения</a>' : ''}
+        ${gallery.length ? '<a href="#gallery">Галерея</a>' : ''}
+        ${reviews.length ? '<a href="#reviews">Отзывы</a>' : ''}
+        ${contactSection ? '<a href="#contacts">Контакты</a>' : ''}
+      </nav>
+    </div>
   </header>
 
-  <div class="hero">
-    <h2>Welcome</h2>
-    <p>${escapeHtml(businessDescription)}</p>
-  </div>
+  <main id="top">
+    <section class="hero">
+      ${heroImage ? `<img class="hero-media" src="${escapeAttr(heroImage)}" alt="${escapeAttr(businessName)}">` : ''}
+      <div class="hero-overlay"></div>
+      <div class="shell hero-content">
+        ${eyebrow ? `<p class="eyebrow">${escapeHtml(eyebrow)}</p>` : ''}
+        <h1>${escapeHtml(headline)}</h1>
+        <p class="hero-lead">${escapeHtml(subheadline)}</p>
+        <div class="hero-actions">
+          ${primaryActionUrl ? `<a class="button button-primary" href="${escapeAttr(primaryActionUrl)}">${escapeHtml(primaryActionLabel)}</a>` : ''}
+          ${secondaryActionUrl && secondaryActionLabel && secondaryActionUrl !== primaryActionUrl
+            ? `<a class="button button-ghost" href="${escapeAttr(secondaryActionUrl)}">${escapeHtml(secondaryActionLabel)}</a>`
+            : ''}
+        </div>
+      </div>
+    </section>
 
-  <div class="container">
-    <h2 style="text-align: center; margin: 2rem 0;">Our Services</h2>
-    <div class="features">
-      <div class="feature">
-        <h3>🚀 Fast</h3>
-        <p>Lightning-fast performance optimized for your users.</p>
-      </div>
-      <div class="feature">
-        <h3>🔒 Secure</h3>
-        <p>Enterprise-grade security for your peace of mind.</p>
-      </div>
-      <div class="feature">
-        <h3>📱 Responsive</h3>
-        <p>Beautiful on all devices and screen sizes.</p>
-      </div>
-    </div>
-  </div>
+    ${businessDescription ? `
+      <section class="section" id="about">
+        <div class="shell intro">
+          <p class="intro-copy">${escapeHtml(businessDescription)}</p>
+          <div class="intro-meta">
+            ${address ? `<p><strong>Адрес</strong><br>${escapeHtml(address)}</p>` : ''}
+            ${workingHours ? `<p><strong>Режим работы</strong><br>${escapeHtml(workingHours)}</p>` : ''}
+          </div>
+        </div>
+      </section>
+    ` : ''}
+
+    ${servicesSection}
+    ${productsSection}
+    ${benefitsSection}
+    ${gallerySection}
+    ${reviewsSection}
+    ${faqSection}
+    ${contactSection}
+  </main>
 
   <footer>
-    <p>&copy; 2026 ${escapeHtml(businessName)}. All rights reserved.</p>
-    <p>Deployed with Velora Deploy Service</p>
+    <div class="shell footer-row">
+      <span>© ${new Date().getFullYear()} ${escapeHtml(businessName)}</span>
+      <span>${escapeHtml(cleanText(brief.footer_note, 'Сайт создан Velora'))}</span>
+    </div>
   </footer>
+
+  ${(primaryActionUrl || secondaryActionUrl) ? `
+    <div class="mobile-actions" aria-label="Быстрые действия">
+      ${primaryActionUrl ? `<a class="button button-primary" href="${escapeAttr(primaryActionUrl)}">${escapeHtml(primaryActionLabel)}</a>` : ''}
+      ${secondaryActionUrl && secondaryActionLabel && secondaryActionUrl !== primaryActionUrl
+        ? `<a class="button button-light" href="${escapeAttr(secondaryActionUrl)}">${escapeHtml(secondaryActionLabel)}</a>`
+        : ''}
+    </div>
+  ` : ''}
 </body>
 </html>`;
 
   fs.writeFileSync(path.join(outDir, 'index.html'), html);
+  fs.writeFileSync(
+    path.join(outDir, 'robots.txt'),
+    'User-agent: *\nAllow: /\nSitemap: https://' + projectName + '.pages.dev/sitemap.xml\n'
+  );
+  fs.writeFileSync(
+    path.join(outDir, 'sitemap.xml'),
+    '<?xml version="1.0" encoding="UTF-8"?>\n' +
+      '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' +
+      '<url><loc>https://' + escapeXml(projectName) + '.pages.dev/</loc></url>' +
+      '</urlset>'
+  );
+}
+
+function cleanText(value, fallback = '') {
+  if (value === null || value === undefined) return fallback;
+  const text = String(value).replace(/\s+/g, ' ').trim();
+  return text || fallback;
+}
+
+function safeColor(value, fallback) {
+  const text = String(value || '').trim();
+  return /^#[0-9a-f]{3,8}$/i.test(text) ? text : fallback;
+}
+
+function safeUrl(value) {
+  const text = String(value || '').trim();
+  if (!text) return '';
+  if (/^(https?:\/\/|tel:|mailto:|tg:\/\/|whatsapp:\/\/)/i.test(text)) {
+    return text;
+  }
+  return '';
+}
+
+function normalizeTelegramUrl(value) {
+  const text = String(value || '').trim();
+  if (!text) return '';
+  if (text.startsWith('@')) {
+    return 'https://t.me/' + text.slice(1).replace(/[^a-zA-Z0-9_]/g, '');
+  }
+  return safeUrl(text);
+}
+
+function normalizeImageUrl(value) {
+  const url = safeUrl(value);
+  return /^https?:\/\//i.test(url) ? url : '';
+}
+
+function normalizeImages(items) {
+  return (Array.isArray(items) ? items : [])
+    .map(item => {
+      if (typeof item === 'string') {
+        return { url: normalizeImageUrl(item), alt: '' };
+      }
+      return {
+        url: normalizeImageUrl(item?.url || item?.image_url || item?.src),
+        alt: cleanText(item?.alt || item?.title, '')
+      };
+    })
+    .filter(item => item.url)
+    .slice(0, 12);
+}
+
+function normalizeCards(items) {
+  return (Array.isArray(items) ? items : [])
+    .map(item => {
+      if (typeof item === 'string') {
+        return { title: cleanText(item), description: '', price: '', image_url: '' };
+      }
+      return {
+        title: cleanText(item?.title || item?.name, ''),
+        description: cleanText(item?.description || item?.text, ''),
+        price: cleanText(item?.price, ''),
+        image_url: normalizeImageUrl(item?.image_url || item?.image || item?.photo)
+      };
+    })
+    .filter(item => item.title)
+    .slice(0, 12);
+}
+
+function normalizeReviews(items) {
+  return (Array.isArray(items) ? items : [])
+    .map(item => ({
+      name: cleanText(item?.name || item?.author, 'Клиент'),
+      text: cleanText(item?.text || item?.review, ''),
+      rating: Math.max(1, Math.min(5, Number(item?.rating) || 5))
+    }))
+    .filter(item => item.text)
+    .slice(0, 9);
+}
+
+function normalizeFaq(items) {
+  return (Array.isArray(items) ? items : [])
+    .map(item => ({
+      question: cleanText(item?.question || item?.title, ''),
+      answer: cleanText(item?.answer || item?.text, '')
+    }))
+    .filter(item => item.question && item.answer)
+    .slice(0, 12);
+}
+
+function renderCardSection(id, title, subtitle, items, kind) {
+  if (!items.length) return '';
+
+  return `<section class="section" id="${escapeAttr(id)}">
+    <div class="shell">
+      <div class="section-head split">
+        <div>
+          <p class="kicker">${kind === 'service' ? 'Услуги' : 'Каталог'}</p>
+          <h2>${escapeHtml(title)}</h2>
+        </div>
+        ${subtitle ? `<p class="section-copy">${escapeHtml(subtitle)}</p>` : ''}
+      </div>
+      <div class="card-grid">
+        ${items.map(item => `
+          <article class="business-card">
+            ${item.image_url ? `<img class="card-media" src="${escapeAttr(item.image_url)}" alt="${escapeAttr(item.title)}" loading="lazy">` : ''}
+            <div class="card-body">
+              <h3>${escapeHtml(item.title)}</h3>
+              ${item.description ? `<p>${escapeHtml(item.description)}</p>` : ''}
+              ${item.price ? `<p class="price">${escapeHtml(item.price)}</p>` : ''}
+            </div>
+          </article>
+        `).join('')}
+      </div>
+    </div>
+  </section>`;
+}
+
+function escapeAttr(text) {
+  return escapeHtml(String(text || ''));
+}
+
+function escapeXml(text) {
+  return String(text || '').replace(/[<>&'"]/g, ch => ({
+    '<': '&lt;',
+    '>': '&gt;',
+    '&': '&amp;',
+    "'": '&apos;',
+    '"': '&quot;'
+  }[ch]));
 }
 
 /**
