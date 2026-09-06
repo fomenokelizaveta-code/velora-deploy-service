@@ -23,7 +23,7 @@ jobs:
             HEALTH="$(curl -fsS --max-time 15 "$HEALTH_URL" 2>/dev/null || true)"
             BUILD="$(curl -fsS --max-time 15 "$BUILD_URL" 2>/dev/null || true)"
             if echo "$HEALTH" | grep -q '"ok":true' \
-              && echo "$BUILD" | grep -q '"generator":"business-site-v2"'; then
+              && echo "$BUILD" | grep -q '"generator":"business-site-v3-admin"'; then
               echo "Railway business generator release is live."
               echo "$HEALTH"
               echo "$BUILD"
@@ -75,16 +75,29 @@ jobs:
                 "theme":{"accent":"#B58A62","accent2":"#7C5C45","background":"#F7F4EF"}
               }
             }')"
-          echo "Deploy response: $RESPONSE"
-          python - "$RESPONSE" <<'PY'
+          python - "$RESPONSE" "$GITHUB_OUTPUT" <<'PY'
           import json, sys
+          from urllib.parse import urlparse, parse_qs
+
           data = json.loads(sys.argv[1])
           if data.get("status") != "OK":
-              raise SystemExit("Deploy failed: " + str(data))
+              raise SystemExit("Deploy failed")
           url = data.get("site_result_url", "")
+          admin_url = data.get("site_admin_url", "")
           if not url.startswith("https://") or not url.endswith(".pages.dev"):
-              raise SystemExit("Unexpected site URL: " + url)
-          print("Cloudflare deploy API returned OK:", url)
+              raise SystemExit("Unexpected site URL")
+          parsed = urlparse(admin_url)
+          q = parse_qs(parsed.query)
+          token = (q.get("token") or [""])[0]
+          slug = (q.get("slug") or [""])[0]
+          if not token or slug != "velora-test-site":
+              raise SystemExit("Missing or invalid protected admin URL")
+          with open(sys.argv[2], "a") as f:
+              f.write("site_url=" + url + "\n")
+              f.write("admin_base=" + parsed.scheme + "://" + parsed.netloc + parsed.path + "\n")
+              f.write("admin_token=" + token + "\n")
+              f.write("admin_slug=" + slug + "\n")
+          print("Cloudflare deploy API returned OK and a protected admin URL.")
           PY
 
       - name: Verify live Pages site serves generated HTML
@@ -107,4 +120,102 @@ jobs:
           done
           echo "Live Pages site did not serve the expected generated HTML"
           curl -i --max-time 20 "$URL" || true
+          exit 1
+
+
+      - name: Verify protected admin page opens
+        shell: bash
+        env:
+          ADMIN_BASE: ${{ steps.deploy.outputs.admin_base }}
+          ADMIN_TOKEN: ${{ steps.deploy.outputs.admin_token }}
+          ADMIN_SLUG: ${{ steps.deploy.outputs.admin_slug }}
+        run: |
+          set -euo pipefail
+          BODY="$(curl -fsS --max-time 20 "$ADMIN_BASE?slug=$ADMIN_SLUG&token=$ADMIN_TOKEN")"
+          echo "$BODY" | grep -q '<title>Velora Admin</title>'
+          echo "$BODY" | grep -q 'Сохранить и опубликовать'
+          echo "Protected admin page verified."
+
+      - name: Verify admin can read current deployed brief
+        shell: bash
+        env:
+          ADMIN_BASE: ${{ steps.deploy.outputs.admin_base }}
+          ADMIN_TOKEN: ${{ steps.deploy.outputs.admin_token }}
+          ADMIN_SLUG: ${{ steps.deploy.outputs.admin_slug }}
+        run: |
+          set -euo pipefail
+          API_BASE="${ADMIN_BASE%/v1/admin}"
+          RESPONSE="$(curl -fsS --max-time 20 "$API_BASE/v1/site-brief?slug=$ADMIN_SLUG" -H "x-velora-site-token: $ADMIN_TOKEN")"
+          python - "$RESPONSE" <<'PY'
+          import json, sys
+          data=json.loads(sys.argv[1])
+          if data.get("status") != "OK":
+              raise SystemExit("Brief read failed")
+          brief=data.get("brief") or {}
+          if brief.get("business_name") != "Velora Test Site":
+              raise SystemExit("Unexpected business_name in saved brief")
+          if len(brief.get("services") or []) < 3:
+              raise SystemExit("Services were not persisted")
+          print("Persisted deployed brief verified.")
+          PY
+
+      - name: Update site through protected admin API
+        id: admin_update
+        shell: bash
+        env:
+          ADMIN_BASE: ${{ steps.deploy.outputs.admin_base }}
+          ADMIN_TOKEN: ${{ steps.deploy.outputs.admin_token }}
+          ADMIN_SLUG: ${{ steps.deploy.outputs.admin_slug }}
+        run: |
+          set -euo pipefail
+          API_BASE="${ADMIN_BASE%/v1/admin}"
+          RESPONSE="$(curl -fsS --max-time 180 -X POST "$API_BASE/v1/admin/update"             -H 'Content-Type: application/json'             -H "x-velora-site-token: $ADMIN_TOKEN"             --data '{
+              "site_slug":"velora-test-site",
+              "site_build_brief":{
+                "business_name":"Velora Test Site",
+                "category":"Студия для бизнеса",
+                "business_description":"Обновлено через защищённую админ-панель Velora.",
+                "headline":"Админка реально обновляет сайт",
+                "subheadline":"Этот текст опубликован повторно через защищённый admin API.",
+                "phone":"+7 900 111-22-33",
+                "telegram":"@velora_demo",
+                "address":"Севастополь",
+                "working_hours":"Ежедневно, 10:00–21:00",
+                "services":[
+                  {"title":"Новая услуга из админки","description":"Проверка полного цикла редактирования.","price":"20 000 ₽"},
+                  {"title":"Поддержка сайта","description":"Изменения без разработчика.","price":"по запросу"}
+                ],
+                "reviews":[
+                  {"name":"Admin Test","text":"Изменения успешно дошли до живого сайта.","rating":5}
+                ],
+                "theme":{"accent":"#B58A62","accent2":"#7C5C45","background":"#F7F4EF"}
+              }
+            }')"
+          python - "$RESPONSE" <<'PY'
+          import json, sys
+          data=json.loads(sys.argv[1])
+          if data.get("status") != "OK":
+              raise SystemExit("Admin update failed")
+          if data.get("site_result_url") != "https://velora-test-site.pages.dev":
+              raise SystemExit("Unexpected site URL after admin update")
+          if not data.get("site_admin_url"):
+              raise SystemExit("Admin URL missing after update")
+          print("Protected admin update returned OK.")
+          PY
+
+      - name: Verify admin changes reached live site
+        shell: bash
+        run: |
+          set -euo pipefail
+          URL="https://velora-test-site.pages.dev"
+          for i in {1..24}; do
+            BODY="$(curl -fsS --max-time 20 "$URL" 2>/dev/null || true)"
+            if echo "$BODY" | grep -q 'Админка реально обновляет сайт'               && echo "$BODY" | grep -q 'Новая услуга из админки'               && echo "$BODY" | grep -q '+7 900 111-22-33'               && echo "$BODY" | grep -q 'Изменения успешно дошли до живого сайта'; then
+              echo "Full admin edit → republish → live verification cycle succeeded."
+              exit 0
+            fi
+            echo "Waiting for admin republish propagation... attempt $i/24"
+            sleep 10
+          done
+          echo "Admin changes did not reach the live site"
           exit 1

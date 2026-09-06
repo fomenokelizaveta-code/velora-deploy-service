@@ -13,7 +13,7 @@ const PORT = process.env.PORT || 3000;
 
 const CLOUDFLARE_ACCOUNT_ID = process.env.CLOUDFLARE_ACCOUNT_ID;
 const CLOUDFLARE_API_TOKEN = process.env.CLOUDFLARE_API_TOKEN;
-const GENERATOR_VERSION = 'business-site-v2';
+const GENERATOR_VERSION = 'business-site-v3-admin';
 const VELORA_ADMIN_SECRET = process.env.VELORA_ADMIN_SECRET || '';
 
 app.use(express.json());
