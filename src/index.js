@@ -1,11 +1,8 @@
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
-const { exec } = require('child_process');
-const { promisify } = require('util');
+const crypto = require('crypto');
 const axios = require('axios');
-
-const execAsync = promisify(exec);
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -124,12 +121,19 @@ function sanitizeProjectName(name) {
 }
 
 /**
+ * Calculate SHA256 hash of a file
+ */
+function hashFile(filePath) {
+  const content = fs.readFileSync(filePath);
+  return crypto.createHash('sha256').update(content).digest('hex');
+}
+
+/**
  * Generate a static HTML website from site_build_brief
  */
 async function generateStaticSite(outDir, brief, projectName) {
   const businessName = brief.business_name || 'Business';
   const businessDescription = brief.business_description || 'Welcome to our site';
-  const heroImage = brief.hero_image_url || 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22800%22 height=%22400%22%3E%3Crect fill=%22%23007bff%22 width=%22800%22 height=%22400%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 font-size=%2248%22 fill=%22white%22 text-anchor=%22middle%22 dominant-baseline=%22middle%22%3EWelcome%3C/text%3E%3C/svg%3E';
 
   const html = `<!DOCTYPE html>
 <html lang="en">
@@ -247,16 +251,6 @@ async function generateStaticSite(outDir, brief, projectName) {
 </html>`;
 
   fs.writeFileSync(path.join(outDir, 'index.html'), html);
-
-  // Create a wrangler.toml for deployment
-  const wranglerToml = `name = "${escapeToml(projectName)}"
-main = "index.js"
-compatibility_date = "2026-01-01"
-
-[env.production]
-`;
-
-  fs.writeFileSync(path.join(outDir, 'wrangler.toml'), wranglerToml);
 }
 
 /**
@@ -318,22 +312,35 @@ async function ensureCloudflareProject(projectName) {
 }
 
 /**
- * Deploy to Cloudflare Pages using direct upload
+ * Deploy to Cloudflare Pages using direct upload with manifest
  */
 async function deployToCloudflarePages(siteDir, projectName, accountId, apiToken) {
   try {
-    // Read files to upload
+    // Read files and compute hashes
     const files = fs.readdirSync(siteDir);
-    const indexHtml = fs.readFileSync(path.join(siteDir, 'index.html'), 'utf-8');
+    const manifest = {};
+
+    for (const file of files) {
+      const filePath = path.join(siteDir, file);
+      const stat = fs.statSync(filePath);
+      
+      if (stat.isFile()) {
+        manifest[`/${file}`] = hashFile(filePath);
+      }
+    }
 
     // Create FormData for upload
     const FormData = require('form-data');
     const form = new FormData();
 
+    // Add manifest as JSON
+    form.append('manifest', JSON.stringify(manifest), {
+      filename: 'manifest.json',
+      contentType: 'application/json'
+    });
+
     // Add files to form
     for (const file of files) {
-      if (file === 'wrangler.toml') continue; // Skip wrangler.toml
-      
       const filePath = path.join(siteDir, file);
       const stat = fs.statSync(filePath);
       
@@ -356,7 +363,6 @@ async function deployToCloudflarePages(siteDir, projectName, accountId, apiToken
       throw new Error(`Upload failed: ${uploadResponse.data.errors?.[0]?.message || 'Unknown error'}`);
     }
 
-    const deploymentId = uploadResponse.data.result?.id;
     const deploymentUrl = `https://${projectName}.pages.dev`;
 
     console.log(`Deployment successful: ${deploymentUrl}`);
@@ -381,13 +387,6 @@ function escapeHtml(text) {
     "'": '&#039;'
   };
   return String(text).replace(/[&<>"']/g, m => map[m]);
-}
-
-/**
- * Escape for TOML
- */
-function escapeToml(text) {
-  return String(text).replace(/"/g, '\\"');
 }
 
 app.listen(PORT, '0.0.0.0', function () {
