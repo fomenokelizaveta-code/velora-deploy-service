@@ -148,16 +148,16 @@ app.get('/v1/admin', function (req, res) {
   res.type('html').send(html);
 });
 
-app.get('/v1/site-brief', function (req, res) {
+app.get('/v1/site-brief', async function (req, res) {
   if (!isAdminAuthorized(req)) return res.status(401).json({status:'ERROR', error:'UNAUTHORIZED'});
   const slug = sanitizeProjectName(req.query.slug || '');
   if (!slug) return res.status(400).json({status:'ERROR', error:'Missing slug'});
-  const file = briefStorePath(slug);
-  if (!fs.existsSync(file)) return res.status(404).json({status:'ERROR', error:'NOT_FOUND'});
   try {
-    return res.json({status:'OK', site_slug:slug, brief:JSON.parse(fs.readFileSync(file,'utf8'))});
+    const url = `https://${slug}.pages.dev/velora-brief.json`;
+    const response = await axios.get(url, { timeout: 15000 });
+    return res.json({status:'OK', site_slug:slug, brief:response.data || {}});
   } catch (e) {
-    return res.status(500).json({status:'ERROR', error:'BRIEF_READ_FAILED'});
+    return res.status(404).json({status:'ERROR', error:'BRIEF_NOT_FOUND'});
   }
 });
 
@@ -171,7 +171,6 @@ app.post('/v1/admin/update', async function (req, res) {
   }
 
   try {
-    saveBrief(site_slug, site_build_brief);
     const tempDir=path.join('/tmp', `velora-admin-${Date.now()}`);
     fs.mkdirSync(tempDir,{recursive:true});
     await generateStaticSite(tempDir, site_build_brief, site_slug);
@@ -200,16 +199,6 @@ function isAdminAuthorized(req) {
   if (!VELORA_ADMIN_SECRET) return false;
   const supplied=String(req.get('x-velora-admin-secret') || req.query.secret || '');
   return supplied && supplied === VELORA_ADMIN_SECRET;
-}
-
-function briefStorePath(slug) {
-  const dir='/tmp/velora-briefs';
-  fs.mkdirSync(dir,{recursive:true});
-  return path.join(dir, sanitizeProjectName(slug) + '.json');
-}
-
-function saveBrief(slug, brief) {
-  fs.writeFileSync(briefStorePath(slug), JSON.stringify(brief, null, 2));
 }
 
 // Deployment endpoint
@@ -255,7 +244,6 @@ app.post('/v1/deploy', async function (req, res) {
     fs.mkdirSync(tempDir, { recursive: true });
 
     // Generate static website from site_build_brief
-    saveBrief(sanitizedSlug, site_build_brief);
     await generateStaticSite(tempDir, site_build_brief, sanitizedSlug);
 
     // Ensure Cloudflare Pages project exists
@@ -909,6 +897,7 @@ async function generateStaticSite(outDir, brief, projectName) {
 </html>`;
 
   fs.writeFileSync(path.join(outDir, 'index.html'), html);
+  fs.writeFileSync(path.join(outDir, 'velora-brief.json'), JSON.stringify(brief, null, 2));
   fs.writeFileSync(
     path.join(outDir, 'robots.txt'),
     'User-agent: *\nAllow: /\nSitemap: https://' + projectName + '.pages.dev/sitemap.xml\n'
