@@ -42,7 +42,32 @@ jobs:
               "mode":"create_or_update",
               "site_build_brief":{
                 "business_name":"Velora Test Site",
-                "business_description":"A live smoke test of Velora Deploy Service"
+                "category":"Студия для бизнеса",
+                "city":"Севастополь",
+                "business_description":"Современный демонстрационный сайт, собранный Velora автоматически из структурированного брифа.",
+                "headline":"Сайт, который уже работает",
+                "subheadline":"Адаптивный дизайн, реальные блоки бизнеса и готовая ссылка для клиента.",
+                "phone":"+7 900 000-00-00",
+                "telegram":"@velora_demo",
+                "address":"Севастополь",
+                "working_hours":"Ежедневно, 09:00–20:00",
+                "services":[
+                  {"title":"Лендинг под ключ","description":"Дизайн, структура, мобильная версия и публикация.","price":"от 15 000 ₽"},
+                  {"title":"Каталог услуг","description":"Удобные карточки с описанием и ценами.","price":"включено"},
+                  {"title":"Поддержка","description":"Обновления контента после запуска.","price":"по запросу"}
+                ],
+                "benefits":[
+                  {"title":"Быстрый запуск","description":"Сайт публикуется автоматически после готового брифа."},
+                  {"title":"Мобильный first","description":"В первую очередь проверяем, как сайт выглядит на телефоне."},
+                  {"title":"Без выдуманных данных","description":"Показываем только то, что реально передано в брифе."}
+                ],
+                "reviews":[
+                  {"name":"Тестовый клиент","text":"Страница выглядит как реальный сайт, а не техническая заглушка.","rating":5}
+                ],
+                "faq":[
+                  {"question":"Можно ли менять блоки?","answer":"Да. Генератор показывает только те разделы, для которых есть данные."}
+                ],
+                "theme":{"accent":"#B58A62","accent2":"#7C5C45","background":"#F7F4EF"}
               }
             }')"
           echo "Deploy response: $RESPONSE"
@@ -64,8 +89,11 @@ jobs:
           URL="https://velora-test-site.pages.dev"
           for i in {1..24}; do
             BODY="$(curl -fsS --max-time 20 "$URL" 2>/dev/null || true)"
-            if echo "$BODY" | grep -q '<title>Velora Test Site</title>'; then
-              echo "Live Pages site verified successfully."
+            if echo "$BODY" | grep -q '<title>Velora Test Site</title>' \
+              && echo "$BODY" | grep -q 'id="services"' \
+              && echo "$BODY" | grep -q 'Что говорят клиенты' \
+              && echo "$BODY" | grep -q '+7 900 000-00-00'; then
+              echo "Live business-site generator verified successfully."
               echo "$BODY" | head -20
               exit 0
             fi
