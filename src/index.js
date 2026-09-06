@@ -1,6 +1,7 @@
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 const axios = require('axios');
 const { execFile } = require('child_process');
 const { promisify } = require('util');
@@ -35,7 +36,9 @@ app.get('/v1/build', function (req, res) {
 // Protected lightweight admin editor for updating a generated site's brief.
 app.get('/v1/admin', function (req, res) {
   const slug = sanitizeProjectName(req.query.slug || '');
+  const token = String(req.query.token || '');
   if (!slug) return res.status(400).send('Missing slug');
+  if (!isSiteAuthorized(slug, token)) return res.status(401).send('Unauthorized');
 
   const html = `<!DOCTYPE html>
 <html lang="ru">
@@ -60,8 +63,6 @@ app.get('/v1/admin', function (req, res) {
   <div class="wrap">
     <h1>Velora Admin</h1>
     <p>Редактирование сайта <code>${escapeHtml(slug)}</code></p>
-    <label>Админ-ключ</label>
-    <input id="secret" type="password" placeholder="Введите ключ доступа">
     <label>Название бизнеса</label>
     <input id="business_name" placeholder="Название">
     <label>Описание</label>
@@ -89,14 +90,12 @@ app.get('/v1/admin', function (req, res) {
   </div>
   <script>
     const slug = ${JSON.stringify(slug)};
+    const token = ${JSON.stringify(token)};
     const $ = id => document.getElementById(id);
 
     async function load() {
-      const secret = localStorage.getItem('velora_admin_secret') || '';
-      $('secret').value = secret;
-      if (!secret) return;
       const r = await fetch('/v1/site-brief?slug=' + encodeURIComponent(slug), {
-        headers: {'x-velora-admin-secret': secret}
+        headers: {'x-velora-site-token': token}
       });
       if (!r.ok) return;
       const data = await r.json();
@@ -109,8 +108,6 @@ app.get('/v1/admin', function (req, res) {
     }
 
     $('save').onclick = async () => {
-      const secret = $('secret').value.trim();
-      localStorage.setItem('velora_admin_secret', secret);
       let services=[], reviews=[];
       try { services = $('services').value.trim() ? JSON.parse($('services').value) : []; } catch(e) { $('status').textContent='Ошибка JSON в услугах'; return; }
       try { reviews = $('reviews').value.trim() ? JSON.parse($('reviews').value) : []; } catch(e) { $('status').textContent='Ошибка JSON в отзывах'; return; }
@@ -132,7 +129,7 @@ app.get('/v1/admin', function (req, res) {
       $('status').textContent='Публикую...';
       const r = await fetch('/v1/admin/update', {
         method:'POST',
-        headers:{'Content-Type':'application/json','x-velora-admin-secret':secret},
+        headers:{'Content-Type':'application/json','x-velora-site-token':token},
         body:JSON.stringify({site_slug:slug, site_build_brief:brief})
       });
       const data = await r.json();
@@ -149,9 +146,10 @@ app.get('/v1/admin', function (req, res) {
 });
 
 app.get('/v1/site-brief', async function (req, res) {
-  if (!isAdminAuthorized(req)) return res.status(401).json({status:'ERROR', error:'UNAUTHORIZED'});
   const slug = sanitizeProjectName(req.query.slug || '');
   if (!slug) return res.status(400).json({status:'ERROR', error:'Missing slug'});
+  const token = String(req.get('x-velora-site-token') || req.query.token || '');
+  if (!isSiteAuthorized(slug, token)) return res.status(401).json({status:'ERROR', error:'UNAUTHORIZED'});
   try {
     const url = `https://${slug}.pages.dev/velora-brief.json`;
     const response = await axios.get(url, { timeout: 15000 });
@@ -162,13 +160,14 @@ app.get('/v1/site-brief', async function (req, res) {
 });
 
 app.post('/v1/admin/update', async function (req, res) {
-  if (!isAdminAuthorized(req)) return res.status(401).json({status:'ERROR', error:'UNAUTHORIZED'});
   const body=req.body||{};
   const site_build_brief=body.site_build_brief||{};
   const site_slug=sanitizeProjectName(body.site_slug || site_build_brief.business_name || '');
   if (!site_slug || !site_build_brief.business_name) {
     return res.status(400).json({status:'ERROR', error:'VALIDATION'});
   }
+  const token = String(req.get('x-velora-site-token') || body.token || '');
+  if (!isSiteAuthorized(site_slug, token)) return res.status(401).json({status:'ERROR', error:'UNAUTHORIZED'});
 
   try {
     const tempDir=path.join('/tmp', `velora-admin-${Date.now()}`);
@@ -189,16 +188,30 @@ app.post('/v1/admin/update', async function (req, res) {
   }
 });
 
+function siteAdminToken(slug) {
+  if (!VELORA_ADMIN_SECRET) return '';
+  return crypto
+    .createHmac('sha256', VELORA_ADMIN_SECRET)
+    .update(String(slug))
+    .digest('hex')
+    .slice(0, 40);
+}
+
 function publicAdminUrl(req, slug) {
   const protocol=(req.headers['x-forwarded-proto'] || req.protocol || 'https').split(',')[0];
   const host=req.get('host');
-  return `${protocol}://${host}/v1/admin?slug=${encodeURIComponent(slug)}`;
+  const token=siteAdminToken(slug);
+  return `${protocol}://${host}/v1/admin?slug=${encodeURIComponent(slug)}&token=${encodeURIComponent(token)}`;
 }
 
-function isAdminAuthorized(req) {
-  if (!VELORA_ADMIN_SECRET) return false;
-  const supplied=String(req.get('x-velora-admin-secret') || req.query.secret || '');
-  return supplied && supplied === VELORA_ADMIN_SECRET;
+function isSiteAuthorized(slug, supplied) {
+  const expected = siteAdminToken(slug);
+  if (!expected || !supplied || supplied.length !== expected.length) return false;
+  try {
+    return crypto.timingSafeEqual(Buffer.from(supplied), Buffer.from(expected));
+  } catch {
+    return false;
+  }
 }
 
 // Deployment endpoint
