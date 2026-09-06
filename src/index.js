@@ -359,6 +359,183 @@ app.post('/v1/manager/site-build', async function (req, res) {
   });
 });
 
+
+app.post('/v1/manager/qa', async function (req, res) {
+  if (!isDeployAuthorized(req)) {
+    return res.status(401).json({status:'ERROR', error_text:'UNAUTHORIZED'});
+  }
+
+  const body=req.body||{};
+  const client_id=cleanText(body.client_id,'');
+  const business_name=cleanText(body.business_name,'');
+  const site_url=cleanText(body.site_url,'');
+  const current_status=cleanText(body.status,'');
+
+  if (!client_id || !site_url) {
+    return res.status(200).json({
+      client_id,
+      status:'ERROR',
+      qa_status:'FAILED',
+      qa_report:'VALIDATION: client_id and site_url are required',
+      manager_comment:'QA could not start.',
+      error_text:'VALIDATION: client_id and site_url are required'
+    });
+  }
+
+  if (current_status && current_status !== 'QA') {
+    return res.status(200).json({
+      client_id,
+      status:current_status,
+      qa_status:cleanText(body.qa_status,'PENDING'),
+      qa_report:cleanText(body.qa_report,''),
+      manager_comment:'QA skipped because status is not QA.',
+      error_text:''
+    });
+  }
+
+  try {
+    const result=await runSiteQa({
+      site_url,
+      business_name,
+      expected_phone:cleanText(body.phone,''),
+      expected_contact:cleanText(body.contact,'')
+    });
+
+    return res.status(200).json({
+      client_id,
+      business_name,
+      status:'QA',
+      site_url,
+      admin_url:cleanText(body.admin_url,''),
+      site_slug:cleanText(body.site_slug,''),
+      qa_status:result.passed ? 'PASSED' : 'FAILED',
+      qa_report:JSON.stringify(result),
+      screenshots_status:cleanText(body.screenshots_status,'PENDING'),
+      video_status:cleanText(body.video_status,'PENDING'),
+      send_status:cleanText(body.send_status,'PENDING'),
+      manager_comment:result.passed
+        ? 'QA passed. Keep status QA until screenshots and video are ready.'
+        : 'QA failed. Fix the site before materials generation.',
+      error_text:result.passed ? '' : 'QA_FAILED'
+    });
+  } catch (error) {
+    return res.status(200).json({
+      client_id,
+      status:'ERROR',
+      qa_status:'FAILED',
+      qa_report:JSON.stringify({passed:false,error:error.message}),
+      manager_comment:'QA request failed.',
+      error_text:'QA_ERROR: '+error.message
+    });
+  }
+});
+
+async function runSiteQa({site_url,business_name,expected_phone,expected_contact}) {
+  const report={
+    passed:false,
+    checked_at:new Date().toISOString(),
+    site_url,
+    checks:[],
+    warnings:[]
+  };
+
+  const add=(name,pass,detail='')=>{
+    report.checks.push({name,pass,detail});
+    return pass;
+  };
+
+  const response=await axios.get(site_url,{
+    timeout:20000,
+    maxRedirects:5,
+    validateStatus:()=>true,
+    headers:{'User-Agent':'Velora-QA/1.0'}
+  });
+
+  add('http_status',response.status>=200&&response.status<400,String(response.status));
+  const html=typeof response.data==='string' ? response.data : String(response.data||'');
+
+  add('html_present',html.length>300,'bytes='+html.length);
+  add('viewport_meta',/<meta[^>]+name=["']viewport["'][^>]*>/i.test(html));
+  add('title_present',/<title>[^<]{2,}<\/title>/i.test(html));
+  add('h1_present',/<h1[^>]*>[^<]{2,}<\/h1>/i.test(html));
+
+  if (business_name) {
+    add('business_name_present',html.toLowerCase().includes(business_name.toLowerCase()),business_name);
+  }
+
+  const badPlaceholders=['lorem ipsum','example.com','your business','business name','todo','undefined','null'];
+  const foundBad=badPlaceholders.filter(x=>html.toLowerCase().includes(x));
+  add('no_placeholder_text',foundBad.length===0,foundBad.join(', '));
+
+  const briefUrl=site_url.replace(/\/$/,'')+'/velora-brief.json';
+  let brief={};
+  try {
+    const briefResp=await axios.get(briefUrl,{timeout:15000,validateStatus:()=>true});
+    if(briefResp.status>=200&&briefResp.status<400&&briefResp.data&&typeof briefResp.data==='object'){
+      brief=briefResp.data;
+      add('brief_available',true);
+    } else {
+      add('brief_available',false,'status='+briefResp.status);
+    }
+  } catch(e) {
+    add('brief_available',false,e.message);
+  }
+
+  const expectedPhone=cleanText(expected_phone || brief.phone,'');
+  if(expectedPhone){
+    const normalized=expectedPhone.replace(/[^+\d]/g,'');
+    const telMatch=(html.match(/href=["']tel:([^"']+)["']/i)||[])[1]||'';
+    add('phone_link_present',telMatch.replace(/[^+\d]/g,'')===normalized,expectedPhone);
+  }
+
+  const tg=normalizeTelegramUrl(brief.telegram_url||brief.telegram);
+  if(tg){
+    add('telegram_link_present',html.includes(tg),tg);
+  }
+
+  const hrefs=[...html.matchAll(/href=["'](https?:\/\/[^"'#]+)["']/gi)].map(m=>m[1]);
+  const images=[...html.matchAll(/<img[^>]+src=["'](https?:\/\/[^"']+)["']/gi)].map(m=>m[1]);
+
+  const uniqueLinks=[...new Set(hrefs)].slice(0,8);
+  for(const url of uniqueLinks){
+    try{
+      const r=await axios.get(url,{timeout:10000,maxRedirects:3,validateStatus:()=>true,headers:{'User-Agent':'Velora-QA/1.0'}});
+      const ok=r.status>=200&&r.status<400;
+      report.checks.push({name:'external_link',pass:ok,detail:url+' -> '+r.status});
+    }catch(e){
+      report.checks.push({name:'external_link',pass:false,detail:url+' -> '+e.message});
+    }
+  }
+
+  const uniqueImages=[...new Set(images)].slice(0,8);
+  for(const url of uniqueImages){
+    try{
+      const r=await axios.get(url,{timeout:10000,maxRedirects:3,validateStatus:()=>true,responseType:'arraybuffer',headers:{'User-Agent':'Velora-QA/1.0'}});
+      const ok=r.status>=200&&r.status<400;
+      report.checks.push({name:'image_asset',pass:ok,detail:url+' -> '+r.status});
+    }catch(e){
+      report.checks.push({name:'image_asset',pass:false,detail:url+' -> '+e.message});
+    }
+  }
+
+  const criticalNames=new Set([
+    'http_status','html_present','viewport_meta','title_present','h1_present',
+    'business_name_present','no_placeholder_text','brief_available',
+    'phone_link_present','telegram_link_present'
+  ]);
+  const critical=report.checks.filter(x=>criticalNames.has(x.name));
+  const assetFailures=report.checks.filter(x=>(x.name==='image_asset'||x.name==='external_link')&&!x.pass);
+
+  report.passed=critical.every(x=>x.pass) && assetFailures.length===0;
+  report.summary={
+    total_checks:report.checks.length,
+    failed_checks:report.checks.filter(x=>!x.pass).length,
+    asset_failures:assetFailures.length
+  };
+
+  return report;
+}
+
 app.get('/v1/manager/schema', function (req, res) {
   res.json({
     ok: true,
@@ -377,7 +554,9 @@ app.get('/v1/manager/schema', function (req, res) {
     },
     success_output_status: 'SITE_READY',
     failure_output_status: 'ERROR',
-    next_manager_state: 'QA'
+    next_manager_state: 'QA',
+    qa_endpoint: '/v1/manager/qa',
+    qa_success: 'qa_status=PASSED while status stays QA until materials are ready'
   });
 });
 
