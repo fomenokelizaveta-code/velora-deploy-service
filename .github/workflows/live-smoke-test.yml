@@ -13,21 +13,26 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 8
     steps:
-      - name: Wait for Railway health
+      - name: Wait for Railway business generator release
         shell: bash
         run: |
           set -euo pipefail
-          URL="https://velora-deploy-service-production.up.railway.app/v1/health"
-          for i in {1..24}; do
-            BODY="$(curl -fsS --max-time 15 "$URL" 2>/dev/null || true)"
-            if echo "$BODY" | grep -q '"ok":true'; then
-              echo "Railway health OK: $BODY"
+          HEALTH_URL="https://velora-deploy-service-production.up.railway.app/v1/health"
+          BUILD_URL="https://velora-deploy-service-production.up.railway.app/v1/build"
+          for i in {1..30}; do
+            HEALTH="$(curl -fsS --max-time 15 "$HEALTH_URL" 2>/dev/null || true)"
+            BUILD="$(curl -fsS --max-time 15 "$BUILD_URL" 2>/dev/null || true)"
+            if echo "$HEALTH" | grep -q '"ok":true' \
+              && echo "$BUILD" | grep -q '"generator":"business-site-v2"'; then
+              echo "Railway business generator release is live."
+              echo "$HEALTH"
+              echo "$BUILD"
               exit 0
             fi
-            echo "Waiting for Railway deployment... attempt $i/24"
+            echo "Waiting for current Railway release... attempt $i/30"
             sleep 10
           done
-          echo "Railway health did not become ready"
+          echo "Current Railway business generator release did not become ready"
           exit 1
 
       - name: Create real Cloudflare Pages test deployment
