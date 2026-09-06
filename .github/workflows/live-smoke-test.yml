@@ -40,7 +40,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          RESPONSE="$(curl -fsS --max-time 180 -X POST             https://velora-deploy-service-production.up.railway.app/v1/deploy             -H 'Content-Type: application/json'             --data '{
+          RESPONSE="$(curl -fsS --max-time 180 -X POST             https://velora-deploy-service-production.up.railway.app/v1/deploy             -H 'Content-Type: application/json'             -H \"x-velora-api-key: ${{ secrets.VELORA_API_KEY }}\"             --data '{
               "client_id":"velora-test-001",
               "site_slug":"velora-test-site",
               "template":"vard-baseline",
