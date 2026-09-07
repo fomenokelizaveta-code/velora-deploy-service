@@ -2226,6 +2226,57 @@ app.get('/demo/:slug', function (req, res) {
   res.sendFile(path.join(outDir, 'index.html'));
 });
 
+app.get('/v1/maintenance/vard-cloudflare-info-20260908', async function (req, res) {
+  try {
+    const names=['vard-flowers-velora','vard-flowers-responsive-test-20260908','vard-flowers-velora-backup-20260908'];
+    const out=[];
+    for(const name of names){
+      const projectUrl='https://api.cloudflare.com/client/v4/accounts/'+CLOUDFLARE_ACCOUNT_ID+'/pages/projects/'+name;
+      const pr=await axios.get(projectUrl,{
+        timeout:15000,
+        validateStatus:()=>true,
+        headers:{'Authorization':'Bearer '+CLOUDFLARE_API_TOKEN,'Content-Type':'application/json'}
+      });
+      const p=pr.data&&pr.data.result||{};
+      const deploymentsUrl=projectUrl+'/deployments';
+      const dr=await axios.get(deploymentsUrl,{
+        timeout:15000,
+        validateStatus:()=>true,
+        headers:{'Authorization':'Bearer '+CLOUDFLARE_API_TOKEN,'Content-Type':'application/json'}
+      });
+      const deps=((dr.data&&dr.data.result)||[]).slice(0,3).map(function(d){
+        return {
+          id:d.id,
+          url:d.url,
+          environment:d.environment,
+          aliases:d.aliases,
+          latest_stage:d.latest_stage,
+          deployment_trigger:d.deployment_trigger
+        };
+      });
+      out.push({
+        name,
+        project_status:pr.status,
+        subdomain:p.subdomain||'',
+        domains:p.domains||[],
+        production_branch:p.production_branch||'',
+        created_on:p.created_on||'',
+        latest_deployment:p.latest_deployment?{
+          id:p.latest_deployment.id,
+          url:p.latest_deployment.url,
+          environment:p.latest_deployment.environment,
+          aliases:p.latest_deployment.aliases
+        }:null,
+        deployments_status:dr.status,
+        deployments:deps
+      });
+    }
+    return res.json({status:'OK',account_id_suffix:String(CLOUDFLARE_ACCOUNT_ID||'').slice(-6),projects:out});
+  } catch(error) {
+    return res.status(500).json({status:'ERROR',error:error.message});
+  }
+});
+
 // Temporary, tightly scoped maintenance hook for rebuilding the current VARD Flowers site.
 // It clones the existing public site (including assets), backs it up, applies a compatibility
 // patch, validates desktop/Android/iPhone-sized layouts, then republishes the original project.
