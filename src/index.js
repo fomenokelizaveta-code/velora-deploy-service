@@ -1380,23 +1380,36 @@ async function generateStaticSite(outDir, brief, projectName) {
 
     @media (max-width: 620px) {
       .shell, .shell-narrow { width: min(100% - 28px, 1180px); }
-      .site-header { padding-top: 16px; }
-      .brand span { max-width: 220px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-      .hero { min-height: 650px; }
-      .hero-content { padding: 150px 0 46px; }
-      .hero h1 { font-size: clamp(48px, 17vw, 76px); }
-      .hero-lead { font-size: 18px; }
-      .hero-actions .button { width: 100%; }
-      .section { padding: 66px 0; }
-      .section-head { margin-bottom: 34px; }
+      .site-header { padding-top: 14px; }
+      .brand-logo, .brand-mark { width: 38px; height: 38px; }
+      .brand span { max-width: 210px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 15px; }
+      .hero { min-height: 540px; }
+      .hero-content { padding: 112px 0 38px; max-width: 100%; }
+      .hero h1 { font-size: clamp(34px, 10vw, 46px); line-height: 1.02; letter-spacing: -.025em; }
+      .hero-lead { font-size: 16px; line-height: 1.45; margin-top: 14px; }
+      .eyebrow { font-size: 10px; letter-spacing: .16em; margin-bottom: 12px; }
+      .hero-actions { gap: 8px; margin-top: 20px; }
+      .hero-actions .button { width: auto; min-height: 48px; padding: 0 18px; }
+      .section { padding: 50px 0; }
+      .section-head { margin-bottom: 26px; }
+      .section-head h2 { font-size: 32px; line-height: 1.05; }
+      .section-head.split { gap: 14px; }
+      .section-copy { font-size: 15px; }
       .card-grid,
       .benefit-grid,
       .review-grid,
       .gallery-grid { grid-template-columns: 1fr; }
-      .gallery-grid { grid-auto-rows: 300px; }
-      .business-card { min-height: 0; }
-      .card-media { height: 260px; }
-      .contact-card { padding: 26px; border-radius: 26px; }
+      .gallery-grid { grid-auto-rows: 230px; gap: 10px; }
+      .business-card { min-height: 0; border-radius: 20px; }
+      .card-media { height: 190px; }
+      .card-body { padding: 20px; }
+      .card-body h3 { font-size: 20px; }
+      .benefit-card { min-height: 180px; padding: 22px; }
+      .benefit-card h3 { margin-top: 34px; font-size: 21px; }
+      .review-card { min-height: 220px; padding: 22px; }
+      .review-text { margin: 26px 0 20px; font-size: 20px; }
+      .contact-card { padding: 24px; border-radius: 24px; }
+      .contact-card h2 { font-size: 34px; }
       .footer-row { flex-direction: column; }
       .mobile-actions { display: flex; }
       footer { padding-bottom: 106px; }
