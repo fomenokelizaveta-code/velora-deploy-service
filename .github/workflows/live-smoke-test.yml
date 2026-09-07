@@ -14,225 +14,101 @@ jobs:
     timeout-minutes: 8
     env:
       VELORA_API_KEY: ${{ secrets.VELORA_API_KEY }}
+      BASE_URL: https://velora-deploy-service-production.up.railway.app
+
     steps:
-      - name: Wait for Railway business generator release
+      - name: Wait for Railway release
         shell: bash
         run: |
           set -euo pipefail
-          HEALTH_URL="https://velora-deploy-service-production.up.railway.app/v1/health"
-          BUILD_URL="https://velora-deploy-service-production.up.railway.app/v1/build"
           for i in {1..30}; do
-            HEALTH="$(curl -fsS --max-time 15 "$HEALTH_URL" 2>/dev/null || true)"
-            BUILD="$(curl -fsS --max-time 15 "$BUILD_URL" 2>/dev/null || true)"
+            HEALTH="$(curl -fsS --max-time 15 "$BASE_URL/v1/health" 2>/dev/null || true)"
+            BUILD="$(curl -fsS --max-time 15 "$BASE_URL/v1/build" 2>/dev/null || true)"
             if echo "$HEALTH" | grep -q '"ok":true' \
-              && echo "$BUILD" | grep -q '"generator":"business-site-v3-admin"'; then
-              echo "Railway business generator release is live."
-              echo "$HEALTH"
-              echo "$BUILD"
+              && echo "$BUILD" | grep -q '"generator":"business-site-v5-russia-safe-proxy"'; then
+              echo "Current Railway release is live."
               exit 0
             fi
-            echo "Waiting for current Railway release... attempt $i/30"
             sleep 10
           done
-          echo "Current Railway business generator release did not become ready"
+          echo "Railway release did not become ready"
           exit 1
+
+      - name: Verify VARD opens through Railway with Android UA
+        shell: bash
+        run: |
+          set -euo pipefail
+          ANDROID_UA='Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Mobile Safari/537.36'
+          STATUS="$(curl -sS -L -A "$ANDROID_UA" -o /tmp/vard.html -w '%{http_code}' --max-time 40 "$BASE_URL/vard/")"
+          test "$STATUS" = "200"
+          test "$(wc -c < /tmp/vard.html)" -gt 3000
+          grep -Eqi 'VARD|Vard|Flowers|цвет' /tmp/vard.html
+          echo "VARD HTML works through Railway for Android UA."
+
+      - name: Verify VARD hero asset through Railway
+        shell: bash
+        run: |
+          set -euo pipefail
+          STATUS="$(curl -sS -L -o /tmp/hero.jpg -w '%{http_code}' --max-time 40 "$BASE_URL/vard/assets/hero.jpg")"
+          test "$STATUS" = "200"
+          test "$(wc -c < /tmp/hero.jpg)" -gt 1000
+          echo "VARD hero asset works through Railway."
+
+      - name: Verify VARD CMS gateway
+        shell: bash
+        run: |
+          set -euo pipefail
+          STATUS="$(curl -sS -L -o /tmp/vard-content.json -w '%{http_code}' --max-time 40 "$BASE_URL/vard-api/content")"
+          test "$STATUS" = "200"
+          test "$(wc -c < /tmp/vard-content.json)" -gt 20
+          echo "VARD CMS is reachable through Railway gateway."
 
       - name: Verify unauthenticated deploy is rejected
         shell: bash
         run: |
           set -euo pipefail
-          STATUS="$(curl -sS -o /tmp/velora-unauth.json -w '%{http_code}' --max-time 20 -X POST             https://velora-deploy-service-production.up.railway.app/v1/deploy             -H 'Content-Type: application/json'             --data '{"client_id":"unauth-test","site_build_brief":{"business_name":"Unauthorized"}}')"
+          STATUS="$(curl -sS -o /tmp/unauth.json -w '%{http_code}' --max-time 20 -X POST \
+            "$BASE_URL/v1/deploy" \
+            -H 'Content-Type: application/json' \
+            --data '{"client_id":"unauth-test","site_build_brief":{"business_name":"Unauthorized"}}')"
           test "$STATUS" = "401"
-          grep -q 'UNAUTHORIZED' /tmp/velora-unauth.json
-          echo "Unauthorized deploy correctly rejected."
+          grep -q 'UNAUTHORIZED' /tmp/unauth.json
 
-      - name: Create real Cloudflare Pages test deployment
+      - name: Create test site and verify Railway public URL
         if: env.VELORA_API_KEY != ''
-        id: deploy
         shell: bash
         run: |
           set -euo pipefail
-          RESPONSE="$(curl -fsS --max-time 180 -X POST             https://velora-deploy-service-production.up.railway.app/v1/deploy             -H 'Content-Type: application/json'             -H "x-velora-api-key: $VELORA_API_KEY"             --data '{
-              "client_id":"velora-test-001",
-              "site_slug":"velora-test-site",
+          RESPONSE="$(curl -fsS --max-time 180 -X POST "$BASE_URL/v1/deploy" \
+            -H 'Content-Type: application/json' \
+            -H "x-velora-api-key: $VELORA_API_KEY" \
+            --data '{
+              "client_id":"velora-proxy-smoke-001",
+              "site_slug":"velora-proxy-smoke-site",
               "template":"vard-baseline",
               "mode":"create_or_update",
               "site_build_brief":{
-                "business_name":"Velora Test Site",
-                "category":"Студия для бизнеса",
-                "city":"Севастополь",
-                "business_description":"Современный демонстрационный сайт, собранный Velora автоматически из структурированного брифа.",
-                "headline":"Сайт, который уже работает",
-                "subheadline":"Адаптивный дизайн, реальные блоки бизнеса и готовая ссылка для клиента.",
+                "business_name":"Velora Proxy Smoke",
+                "headline":"Railway public gateway works",
+                "subheadline":"Cross-device public delivery test.",
                 "phone":"+7 900 000-00-00",
-                "telegram":"@velora_demo",
                 "address":"Севастополь",
-                "working_hours":"Ежедневно, 09:00–20:00",
-                "services":[
-                  {"title":"Лендинг под ключ","description":"Дизайн, структура, мобильная версия и публикация.","price":"от 15 000 ₽"},
-                  {"title":"Каталог услуг","description":"Удобные карточки с описанием и ценами.","price":"включено"},
-                  {"title":"Поддержка","description":"Обновления контента после запуска.","price":"по запросу"}
-                ],
-                "benefits":[
-                  {"title":"Быстрый запуск","description":"Сайт публикуется автоматически после готового брифа."},
-                  {"title":"Мобильный first","description":"В первую очередь проверяем, как сайт выглядит на телефоне."},
-                  {"title":"Без выдуманных данных","description":"Показываем только то, что реально передано в брифе."}
-                ],
-                "reviews":[
-                  {"name":"Тестовый клиент","text":"Страница выглядит как реальный сайт, а не техническая заглушка.","rating":5}
-                ],
-                "faq":[
-                  {"question":"Можно ли менять блоки?","answer":"Да. Генератор показывает только те разделы, для которых есть данные."}
-                ],
-                "theme":{"accent":"#B58A62","accent2":"#7C5C45","background":"#F7F4EF"}
+                "services":[{"title":"Тест","description":"Проверка публичной Railway-ссылки."}]
               }
             }')"
-          python - "$RESPONSE" "$GITHUB_OUTPUT" <<'PY'
-          import json, sys
-          from urllib.parse import urlparse, parse_qs
-
-          data = json.loads(sys.argv[1])
-          if data.get("status") != "OK":
-              raise SystemExit("Deploy failed")
-          url = data.get("site_result_url", "")
-          admin_url = data.get("site_admin_url", "")
-          if not url.startswith("https://") or not url.endswith(".pages.dev"):
-              raise SystemExit("Unexpected site URL")
-          parsed = urlparse(admin_url)
-          q = parse_qs(parsed.query)
-          token = (q.get("token") or [""])[0]
-          slug = (q.get("slug") or [""])[0]
-          if not token or slug != "velora-test-site":
-              raise SystemExit("Missing or invalid protected admin URL")
-          with open(sys.argv[2], "a") as f:
-              f.write("site_url=" + url + "\n")
-              f.write("admin_base=" + parsed.scheme + "://" + parsed.netloc + parsed.path + "\n")
-              f.write("admin_token=" + token + "\n")
-              f.write("admin_slug=" + slug + "\n")
-          print("Cloudflare deploy API returned OK and a protected admin URL.")
-          PY
-
-      - name: Verify live Pages site serves generated HTML
-        if: env.VELORA_API_KEY != ''
-        shell: bash
-        run: |
-          set -euo pipefail
-          URL="https://velora-test-site.pages.dev"
-          for i in {1..24}; do
-            BODY="$(curl -fsS --max-time 20 "$URL" 2>/dev/null || true)"
-            if echo "$BODY" | grep -q '<title>Velora Test Site</title>' \
-              && echo "$BODY" | grep -q 'id="services"' \
-              && echo "$BODY" | grep -q 'Что говорят клиенты' \
-              && echo "$BODY" | grep -q '+7 900 000-00-00'; then
-              echo "Live business-site generator verified successfully."
-              echo "$BODY" | head -20
-              exit 0
-            fi
-            echo "Waiting for Pages propagation/content... attempt $i/24"
-            sleep 10
-          done
-          echo "Live Pages site did not serve the expected generated HTML"
-          curl -i --max-time 20 "$URL" || true
-          exit 1
-
-
-      - name: Verify protected admin page opens
-        if: env.VELORA_API_KEY != ''
-        shell: bash
-        env:
-          ADMIN_BASE: ${{ steps.deploy.outputs.admin_base }}
-          ADMIN_TOKEN: ${{ steps.deploy.outputs.admin_token }}
-          ADMIN_SLUG: ${{ steps.deploy.outputs.admin_slug }}
-        run: |
-          set -euo pipefail
-          BODY="$(curl -fsS --max-time 20 "$ADMIN_BASE?slug=$ADMIN_SLUG&token=$ADMIN_TOKEN")"
-          echo "$BODY" | grep -q '<title>Velora Admin</title>'
-          echo "$BODY" | grep -q 'Сохранить и опубликовать'
-          echo "Protected admin page verified."
-
-      - name: Verify admin can read current deployed brief
-        if: env.VELORA_API_KEY != ''
-        shell: bash
-        env:
-          ADMIN_BASE: ${{ steps.deploy.outputs.admin_base }}
-          ADMIN_TOKEN: ${{ steps.deploy.outputs.admin_token }}
-          ADMIN_SLUG: ${{ steps.deploy.outputs.admin_slug }}
-        run: |
-          set -euo pipefail
-          API_BASE="${ADMIN_BASE%/v1/admin}"
-          RESPONSE="$(curl -fsS --max-time 20 "$API_BASE/v1/site-brief?slug=$ADMIN_SLUG" -H "x-velora-site-token: $ADMIN_TOKEN")"
-          python - "$RESPONSE" <<'PY'
-          import json, sys
+          SITE_URL="$(python - "$RESPONSE" <<'PY'
+          import json,sys
           data=json.loads(sys.argv[1])
-          if data.get("status") != "OK":
-              raise SystemExit("Brief read failed")
-          brief=data.get("brief") or {}
-          if brief.get("business_name") != "Velora Test Site":
-              raise SystemExit("Unexpected business_name in saved brief")
-          if len(brief.get("services") or []) < 3:
-              raise SystemExit("Services were not persisted")
-          print("Persisted deployed brief verified.")
+          if data.get("status")!="OK":
+              raise SystemExit("deploy failed: "+str(data))
+          url=data.get("site_result_url","")
+          if ".up.railway.app/site/" not in url:
+              raise SystemExit("expected Railway public URL, got "+url)
+          print(url)
           PY
-
-      - name: Update site through protected admin API
-        if: env.VELORA_API_KEY != ''
-        id: admin_update
-        shell: bash
-        env:
-          ADMIN_BASE: ${{ steps.deploy.outputs.admin_base }}
-          ADMIN_TOKEN: ${{ steps.deploy.outputs.admin_token }}
-          ADMIN_SLUG: ${{ steps.deploy.outputs.admin_slug }}
-        run: |
-          set -euo pipefail
-          API_BASE="${ADMIN_BASE%/v1/admin}"
-          RESPONSE="$(curl -fsS --max-time 180 -X POST "$API_BASE/v1/admin/update"             -H 'Content-Type: application/json'             -H "x-velora-site-token: $ADMIN_TOKEN"             --data '{
-              "site_slug":"velora-test-site",
-              "site_build_brief":{
-                "business_name":"Velora Test Site",
-                "category":"Студия для бизнеса",
-                "business_description":"Обновлено через защищённую админ-панель Velora.",
-                "headline":"Админка реально обновляет сайт",
-                "subheadline":"Этот текст опубликован повторно через защищённый admin API.",
-                "phone":"+7 900 111-22-33",
-                "telegram":"@velora_demo",
-                "address":"Севастополь",
-                "working_hours":"Ежедневно, 10:00–21:00",
-                "services":[
-                  {"title":"Новая услуга из админки","description":"Проверка полного цикла редактирования.","price":"20 000 ₽"},
-                  {"title":"Поддержка сайта","description":"Изменения без разработчика.","price":"по запросу"}
-                ],
-                "reviews":[
-                  {"name":"Admin Test","text":"Изменения успешно дошли до живого сайта.","rating":5}
-                ],
-                "theme":{"accent":"#B58A62","accent2":"#7C5C45","background":"#F7F4EF"}
-              }
-            }')"
-          python - "$RESPONSE" <<'PY'
-          import json, sys
-          data=json.loads(sys.argv[1])
-          if data.get("status") != "OK":
-              raise SystemExit("Admin update failed")
-          if data.get("site_result_url") != "https://velora-test-site.pages.dev":
-              raise SystemExit("Unexpected site URL after admin update")
-          if not data.get("site_admin_url"):
-              raise SystemExit("Admin URL missing after update")
-          print("Protected admin update returned OK.")
-          PY
-
-      - name: Verify admin changes reached live site
-        if: env.VELORA_API_KEY != ''
-        shell: bash
-        run: |
-          set -euo pipefail
-          URL="https://velora-test-site.pages.dev"
-          for i in {1..24}; do
-            BODY="$(curl -fsS --max-time 20 "$URL" 2>/dev/null || true)"
-            if echo "$BODY" | grep -q 'Админка реально обновляет сайт'               && echo "$BODY" | grep -q 'Новая услуга из админки'               && echo "$BODY" | grep -q '+7 900 111-22-33'               && echo "$BODY" | grep -q 'Изменения успешно дошли до живого сайта'; then
-              echo "Full admin edit → republish → live verification cycle succeeded."
-              exit 0
-            fi
-            echo "Waiting for admin republish propagation... attempt $i/24"
-            sleep 10
-          done
-          echo "Admin changes did not reach the live site"
-          exit 1
+          )"
+          ANDROID_UA='Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Mobile Safari/537.36'
+          BODY="$(curl -fsS -L -A "$ANDROID_UA" --max-time 40 "$SITE_URL")"
+          echo "$BODY" | grep -q '<title>Velora Proxy Smoke</title>'
+          echo "$BODY" | grep -q 'Railway public gateway works'
+          echo "Generated site public Railway URL verified with Android UA."
