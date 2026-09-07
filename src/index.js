@@ -1944,25 +1944,50 @@ SALES_DEMOS['imperiya-stilya-sevastopol'] = {
 SALES_DEMOS['le-di-clinic-sevastopol'] = {
   business_name: 'LE Di Clinic Севастополь',
   eyebrow: 'Клиника эстетической косметологии · Севастополь',
-  headline: 'Современная косметология с медицинским подходом',
-  business_description: 'Инъекционная и аппаратная косметология, ботулинотерапия, коррекция губ, SMAS- и RF-лифтинг, лазерная эпиляция, пилинги и уходовые процедуры.',
-  subheadline: 'Персональные программы ухода и эстетической коррекции в центре Севастополя.',
+  headline: 'LE Di Clinic',
+  business_description: 'Инъекционная и аппаратная косметология, ботулинотерапия, контурная пластика, SMAS- и RF-лифтинг, пилинги, чистки и уходовые процедуры.',
+  subheadline: 'Современные процедуры для лица и тела с записью напрямую к специалисту.',
   phone: '+7 978 161-53-68',
-  telegram: '@ledi_sevastopol',
+  telegram: '@EkaterinaValeri',
   address: 'Севастополь, улица Адмирала Перелешина, 1',
-  primary_action_label: 'Записаться на консультацию',
+  hero_image: 'https://telegra.ph/file/e90369865d0f7a45c7c4b.jpg',
+  logo_url: 'https://cdn4.telesco.pe/file/qOG63aAU0eihALLkMQ1n3IwuHGhcEYF4woPrsr61622H6aV5pJhluhEZ_BaWasJHacWxP0am3MSgh5svpiKXgxVeBEnlRlEzwn_iTaqC2DTfU4h2EskV0o8gcyOC_f7YwMVy2Zd_P_B5mw6IasnB9tG7vpj-96_qWvx9CZfJkKkM5SPlZzMfvQq_oiRRuXITCXp0aaNNd-Jd27kdTMqSTRWeKMRhLtVhzK4ePVWE6AmtwoSou8qYpETpQU7i0U_7SOWl5rba6dILmvglntCa3-K79rqMcoLpkJG09cwAnxK2WlosmkGzEgph-HjM1p7ohcEqESRMu2LASxxj2vvKlA.jpg',
+  primary_action_url: 'https://t.me/EkaterinaValeri',
+  primary_action_label: 'Записаться',
+  secondary_action_url: 'https://t.me/ledi_sevastopol',
+  secondary_action_label: 'Telegram клиники',
+  services_title: 'Популярные процедуры',
+  services_subtitle: 'Собрали направления и актуальные предложения из публичного Telegram клиники.',
   services: [
-    { title: 'Инъекционная косметология', description: 'Ботулинотерапия, контурная пластика и персонально подобранные процедуры.' },
-    { title: 'Аппаратная косметология', description: 'SMAS-лифтинг, микроигольчатый RF-лифтинг и современные методики омоложения.' },
-    { title: 'Лазерная эпиляция', description: 'Комфортные процедуры для гладкой кожи и долгосрочного результата.' },
-    { title: 'Уход и пилинги', description: 'Чистки, пилинги и восстановительные программы для качества кожи.' }
+    { title: 'Ботулинотерапия', description: 'Коррекция мимических морщин и работа с гипертонусом мышц лица.', price: '3 зоны — 6 000 ₽', image_url: 'https://telegra.ph/file/b104988c64c9f3ce75d05.jpg' },
+    { title: 'Контурная пластика губ', description: 'Коррекция формы и объёма губ филлерами на основе гиалуроновой кислоты.', price: 'от 6 400 ₽', image_url: 'https://telegra.ph/file/e90369865d0f7a45c7c4b.jpg' },
+    { title: 'SMAS-лифтинг', description: 'Безоперационная подтяжка тканей и работа с овалом лица.', price: 'от 5 000 ₽', image_url: 'https://telegra.ph/file/c668c90d58d4866ddbe44.jpg' },
+    { title: 'Микроигольчатый RF-лифтинг', description: 'Работа с качеством кожи, постакне, рубцами и тонусом.', price: 'по записи', image_url: 'https://telegra.ph/file/c668c90d58d4866ddbe44.jpg' },
+    { title: 'Биоревитализация', description: 'Увлажнение, поддержка качества кожи и работа с возрастными изменениями.', price: 'лицо — от 3 500 ₽', image_url: 'https://telegra.ph/file/b104988c64c9f3ce75d05.jpg' },
+    { title: 'Чистка + энзимный пилинг', description: 'Комбинированная процедура для очищения и обновления кожи.', price: 'от 999 ₽', image_url: 'https://telegra.ph/file/e90369865d0f7a45c7c4b.jpg' }
   ],
+  gallery_title: 'Процедуры и эстетика',
+  gallery_subtitle: 'Использованы изображения из публичных публикаций LE Di Clinic.',
+  gallery_images: [
+    { url: 'https://telegra.ph/file/e90369865d0f7a45c7c4b.jpg', alt: 'LE Di Clinic — контурная пластика' },
+    { url: 'https://telegra.ph/file/b104988c64c9f3ce75d05.jpg', alt: 'LE Di Clinic — ботулинотерапия' },
+    { url: 'https://telegra.ph/file/c668c90d58d4866ddbe44.jpg', alt: 'LE Di Clinic — SMAS и RF процедуры' },
+    { url: 'https://telegra.ph/file/e90369865d0f7a45c7c4b.jpg', alt: 'LE Di Clinic Севастополь' }
+  ],
+  benefits_title: 'Всё для записи в одном месте',
   benefits: [
-    { title: 'Комплексный подход', description: 'Инъекционные, аппаратные и уходовые методики в одном месте.' },
-    { title: 'Персональный план', description: 'Процедуры подбираются под цели, состояние кожи и желаемый результат.' },
-    { title: 'Удобная запись', description: 'Связь с клиникой в один клик через телефон или Telegram.' }
+    { title: 'Понятный каталог', description: 'Клиент сразу видит основные процедуры и ориентиры по стоимости.' },
+    { title: 'Прямая запись', description: 'Запись к специалисту через Telegram без лишних переходов.' },
+    { title: 'Актуальная подача', description: 'Акции, новые процедуры и цены можно менять через админ-панель.' }
   ],
-  theme: { accent:'#C7A0A8', accent2:'#8E6871', background:'#FBF7F8', surface:'#FFFFFF', text:'#241E20', muted:'#776C70' },
+  faq: [
+    { question: 'Где находится LE Di Clinic в Севастополе?', answer: 'Севастополь, улица Адмирала Перелешина, 1.' },
+    { question: 'Как записаться?', answer: 'Через Telegram @EkaterinaValeri или по телефону +7 978 161-53-68.' },
+    { question: 'Какие процедуры есть?', answer: 'Инъекционная и аппаратная косметология, ботулинотерапия, контурная пластика, SMAS- и RF-лифтинг, пилинги и чистки.' }
+  ],
+  theme: { accent:'#C9A0A8', accent2:'#8C6570', background:'#F8F3F5', surface:'#FFFFFF', text:'#261D20', muted:'#74676C' },
+  contact_title: 'Запишитесь в LE Di Clinic',
+  contact_text: 'Адмирала Перелешина, 1 · запись через Telegram',
   footer_note: 'Демо-концепт сайта от VELORA AI'
 };
 
