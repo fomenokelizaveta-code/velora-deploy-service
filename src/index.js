@@ -1173,12 +1173,12 @@ async function generateStaticSite(outDir, brief, projectName) {
     .kicker { color: var(--accent-2); }
     .hero h1 {
       margin: 0;
-      max-width: 820px;
+      max-width: 720px;
       font-family: Georgia, "Times New Roman", serif;
       font-weight: 500;
-      font-size: clamp(54px, 8vw, 108px);
-      line-height: .92;
-      letter-spacing: -.045em;
+      font-size: clamp(42px, 6vw, 76px);
+      line-height: .98;
+      letter-spacing: -.035em;
     }
     .hero-lead {
       margin: 28px 0 0;
@@ -1360,8 +1360,11 @@ async function generateStaticSite(outDir, brief, projectName) {
 
     @media (max-width: 900px) {
       .nav { display: none; }
-      .hero { min-height: 690px; }
-      .hero-content { padding-bottom: 58px; }
+      .hero { min-height: 610px; }
+      .hero-content { padding: 138px 0 48px; max-width: 92%; }
+      .hero h1 { font-size: clamp(38px, 12vw, 58px); line-height: 1; }
+      .hero-lead { font-size: 17px; margin-top: 18px; }
+      .hero-actions { margin-top: 24px; }
       .section { padding: 78px 0; }
       .intro,
       .section-head.split,
@@ -1769,26 +1772,58 @@ const SALES_DEMOS = {
   },
   'studio17-sevastopol': {
     business_name: 'Студия 17',
-    eyebrow: 'Barbershop · Севастополь',
-    headline: 'Стиль, который работает на вас',
-    business_description: 'Мужские стрижки, оформление бороды и бритьё в атмосфере современного барбершопа.',
-    subheadline: 'Аккуратная форма, сильный образ и внимание к деталям — без лишнего.',
+    eyebrow: 'Барбершоп · Севастополь',
+    headline: 'Студия 17',
+    business_description: 'Мужские стрижки, бритьё и уход за бородой. Барберы с опытом, премиальный сервис и уютная атмосфера.',
+    subheadline: 'Стрижки, борода, бритьё и уход — в одном месте на проспекте Победы.',
     phone: '+7 978 682-72-92',
     telegram: '@studiO_17_sev',
     address: 'Севастополь, проспект Победы, 1А',
-    primary_action_label: 'Записаться',
+    working_hours: 'Ежедневно 10:00–21:00',
+    hero_image: 'https://avatars.mds.yandex.net/get-maps-adv-crm/3927175/2a0000017f930c126f5646ca14762b7228e7/landing_background',
+    logo_url: 'https://avatars.mds.yandex.net/get-maps-adv-crm/11387709/2a00000194004536be58f49e19cc5f1dd7cc/landing_logo',
+    primary_action_url: 'https://studija17.clients.site/',
+    primary_action_label: 'Записаться онлайн',
+    secondary_action_url: 'https://t.me/studiO_17_sev',
+    secondary_action_label: 'Telegram',
+    services_title: 'Услуги барбершопа',
+    services_subtitle: 'То, за чем сюда возвращаются: чистая форма, аккуратные линии и нормальный мужской сервис.',
     services: [
-      { title: 'Мужская стрижка', description: 'Форма под стиль, структуру волос и образ жизни.' },
-      { title: 'Оформление бороды', description: 'Контур, длина и аккуратная финальная укладка.' },
-      { title: 'Классическое бритьё', description: 'Традиционный ритуал чистого бритья и ухода.' },
-      { title: 'Стрижка + борода', description: 'Комплексный образ за один визит.' }
+      { title: 'Мужская стрижка', description: 'Подбор формы под тип волос, привычный стиль и образ жизни.', price: 'от 1 200 ₽', image_url: 'https://avatars.mds.yandex.net/get-maps-adv-crm/3927175/2a0000017f930c126f5646ca14762b7228e7/landing_background' },
+      { title: 'Оформление бороды', description: 'Форма, контур, длина и финальная укладка.', price: 'по записи', image_url: 'https://avatars.mds.yandex.net/get-maps-adv-crm/3927175/2a0000017f930c126f5646ca14762b7228e7/landing_background' },
+      { title: 'Стрижка + борода', description: 'Комплексный образ за один визит — волосы и борода в одном стиле.', price: 'комплекс', image_url: 'https://avatars.mds.yandex.net/get-maps-adv-crm/3927175/2a0000017f930c126f5646ca14762b7228e7/landing_background' },
+      { title: 'Бритьё опасной бритвой', description: 'Классический ритуал с распариванием кожи и уходом.', price: 'по записи', image_url: 'https://avatars.mds.yandex.net/get-maps-adv-crm/3927175/2a0000017f930c126f5646ca14762b7228e7/landing_background' },
+      { title: 'Уход за бородой', description: 'Подбор стайлинга, уходовых средств и рекомендации мастера.', price: 'по записи', image_url: 'https://avatars.mds.yandex.net/get-maps-adv-crm/3927175/2a0000017f930c126f5646ca14762b7228e7/landing_background' },
+      { title: 'Детская стрижка', description: 'Аккуратная современная форма для детей и подростков.', price: 'по записи', image_url: 'https://avatars.mds.yandex.net/get-maps-adv-crm/3927175/2a0000017f930c126f5646ca14762b7228e7/landing_background' }
     ],
+    gallery_title: 'Студия и работы',
+    gallery_subtitle: 'Реальная фотография бизнеса из их публичной карточки. Для финальной версии подключим полный фотосет из их галереи.',
+    gallery_images: [
+      { url: 'https://avatars.mds.yandex.net/get-maps-adv-crm/3927175/2a0000017f930c126f5646ca14762b7228e7/landing_background', alt: 'Студия 17 — барбершоп в Севастополе' },
+      { url: 'https://avatars.mds.yandex.net/get-maps-adv-crm/3927175/2a0000017f930c126f5646ca14762b7228e7/landing_background', alt: 'Интерьер Студии 17' },
+      { url: 'https://avatars.mds.yandex.net/get-maps-adv-crm/3927175/2a0000017f930c126f5646ca14762b7228e7/landing_background', alt: 'Работа барбершопа Студия 17' },
+      { url: 'https://avatars.mds.yandex.net/get-maps-adv-crm/3927175/2a0000017f930c126f5646ca14762b7228e7/landing_background', alt: 'Студия 17, Севастополь' }
+    ],
+    benefits_title: 'Не просто стрижка',
     benefits: [
-      { title: 'Опытные мастера', description: 'Работа с формой и деталями, которые заметны в результате.' },
-      { title: 'Комфортная атмосфера', description: 'Пространство, куда хочется возвращаться.' },
-      { title: 'Удобная запись', description: 'Связь с барбершопом в один клик.' }
+      { title: 'Опытные барберы', description: 'Мастера вникают в запрос, предлагают форму и доводят результат до деталей.' },
+      { title: 'Премиальный уход', description: 'Профессиональная косметика, уход за бородой и дополнительные процедуры.' },
+      { title: 'Уют и сервис', description: 'Кофе, чай, спокойная атмосфера и запись без лишних звонков.' }
     ],
-    theme: { accent:'#C5A56A', accent2:'#836A43', background:'#111111', surface:'#1A1A1A', text:'#F5F0E8', muted:'#B0AAA1' },
+    reviews_title: '245 отзывов · рейтинг 5.0',
+    reviews: [
+      { name: 'Юлия', rating: 5, text: 'Очень приятная обстановка. Вежливый коллектив. Сын подросток ходил на стрижку — всё понравилось.' },
+      { name: 'Артём Волобуев', rating: 5, text: 'Мастер Элина профессионал своего дела, стрижет и бреет так, как никто. Давно искал мастера такого уровня.' },
+      { name: 'Роман Олегович', rating: 5, text: 'Был тут не один раз, всё понравилось. Персонал отличный, приду сюда ещё раз.' }
+    ],
+    faq: [
+      { question: 'Где находится Студия 17?', answer: 'Севастополь, проспект Победы, 1А, рядом с ТЦ «Фреш», второй этаж.' },
+      { question: 'Как записаться?', answer: 'Через онлайн-запись, Telegram или по телефону +7 978 682-72-92.' },
+      { question: 'Как работает барбершоп?', answer: 'Ежедневно с 10:00 до 21:00.' }
+    ],
+    theme: { accent:'#CDAE6A', accent2:'#9D7B3D', background:'#F5F1EA', surface:'#FFFFFF', text:'#17130F', muted:'#756C62' },
+    contact_title: 'Запишитесь на удобное время',
+    contact_text: 'Проспект Победы, 1А · ежедневно 10:00–21:00',
     footer_note: 'Демо-концепт сайта от VELORA AI'
   },
   'selfie-sevastopol': {
