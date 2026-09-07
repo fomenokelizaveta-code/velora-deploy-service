@@ -1,0 +1,16 @@
+name: Read VARD Cloudflare project info once
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/vard-cloudflare-info-once.yml'
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Read project info
+        run: |
+          set -euo pipefail
+          curl -fsS "https://velora-deploy-service-production.up.railway.app/v1/maintenance/vard-cloudflare-info-20260908"
