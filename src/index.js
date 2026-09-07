@@ -2088,6 +2088,76 @@ SALES_DEMOS['bem-massage-sevastopol'] = {
   footer_note: 'Демо-концепт сайта от VELORA AI'
 };
 
+const SALES_MATERIAL_CACHE = new Map();
+
+app.get('/demo/:slug/materials.json', async function (req, res) {
+  const slug = String(req.params.slug || '').toLowerCase();
+  const brief = SALES_DEMOS[slug];
+  if (!brief) return res.status(404).json({status:'ERROR', error:'Demo not found'});
+
+  const cached = SALES_MATERIAL_CACHE.get(slug);
+  if (cached) return res.json(cached);
+
+  let tempDir='';
+  let browser=null;
+  try {
+    tempDir=path.join('/tmp', `velora-sales-materials-${slug}-${Date.now()}`);
+    fs.mkdirSync(tempDir,{recursive:true});
+
+    browser=await chromium.launch({
+      headless:true,
+      executablePath:process.env.CHROMIUM_PATH || '/usr/bin/chromium',
+      args:['--no-sandbox','--disable-dev-shm-usage','--disable-gpu']
+    });
+
+    const context=await browser.newContext({
+      viewport:{width:390,height:693},
+      deviceScaleFactor:1,
+      isMobile:true,
+      hasTouch:true,
+      userAgent:'Velora Sales Materials Bot/1.0'
+    });
+    const page=await context.newPage();
+    await page.goto(`http://127.0.0.1:${PORT}/demo/${encodeURIComponent(slug)}`,{
+      waitUntil:'networkidle',
+      timeout:45000
+    });
+    await page.evaluate(async()=>{
+      if(document.fonts&&document.fonts.ready){try{await document.fonts.ready;}catch(e){}}
+      await new Promise(r=>setTimeout(r,700));
+    });
+
+    const screenshotFiles=await captureDistinctScreenshots(page,tempDir);
+    await context.close();
+    await browser.close();
+    browser=null;
+
+    const project=materialsProjectName(slug+'-sales');
+    await ensureCloudflareProject(project);
+    const root=await deployToCloudflarePages(
+      tempDir,
+      project,
+      CLOUDFLARE_ACCOUNT_ID,
+      CLOUDFLARE_API_TOKEN
+    );
+    const payload={
+      status:'READY',
+      business_name:cleanText(brief.business_name,slug),
+      site_url:`https://velora-deploy-service-production.up.railway.app/demo/${slug}`,
+      screenshots_urls:screenshotFiles.map(name=>root+'/'+encodeURIComponent(name)),
+      materials_url:root
+    };
+    SALES_MATERIAL_CACHE.set(slug,payload);
+    return res.json(payload);
+  } catch(error) {
+    console.error('Sales materials error:',error.message);
+    return res.status(500).json({status:'ERROR',error:error.message});
+  } finally {
+    if(browser){try{await browser.close();}catch(e){}}
+    if(tempDir){fs.rmSync(tempDir,{recursive:true,force:true});}
+  }
+});
+
 app.get('/demo/:slug', function (req, res) {
   const slug = String(req.params.slug || '').toLowerCase();
   const brief = SALES_DEMOS[slug];
