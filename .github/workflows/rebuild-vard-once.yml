@@ -1,0 +1,16 @@
+name: Rebuild VARD responsive site
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/rebuild-vard-once.yml'
+
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Rebuild VARD Flowers with current brief
+        run: |
+          set -euo pipefail
+          curl -fsS --retry 5 --retry-delay 3             "https://velora-deploy-service-production.up.railway.app/v1/maintenance/rebuild-vard-20260908"
