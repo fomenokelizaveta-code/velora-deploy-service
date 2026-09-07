@@ -1762,25 +1762,51 @@ const SALES_DEMOS = {
   'amate-sevastopol': {
     business_name: 'АМАТЭ Севастополь',
     eyebrow: 'Студия эстетики тела · Севастополь',
-    headline: 'Красота тела начинается с заботы о себе',
-    business_description: 'Оздоровительные, спортивные, лимфодренажные и антицеллюлитные массажи, косметология и программы коррекции фигуры.',
-    subheadline: 'Современная студия эстетики тела с комплексным подходом к самочувствию, восстановлению и красоте.',
+    headline: 'Аматэ',
+    business_description: 'Оздоровительные, спортивные, лимфодренажные и антицеллюлитные массажи, косметология, фотоэпиляция и программы коррекции фигуры.',
+    subheadline: 'Массаж, косметология и работа с телом в одном пространстве на Античном проспекте.',
     phone: '+7 978 888-60-90',
     telegram: '@amate_sevastopol',
     address: 'Севастополь, проспект Античный, 26к4',
-    primary_action_label: 'Записаться по телефону',
+    hero_image: 'https://sun9-17.userapi.com/s/v1/ig2/TVxuDhnUe9RAY-nVnDUha3Tle2_yFsXRE5dYGgl63eBSQCmQlVYwJ-WkNzlVV2X8Ug96uMBYVvJsrzc3-CPwvEDR.jpg?as=32x43%2C48x64%2C72x96%2C108x144%2C160x213%2C240x320%2C360x480%2C480x640%2C540x720%2C640x853%2C720x960%2C1080x1440%2C1280x1707%2C1440x1920%2C1920x2560&cs=200x267&from=bu&quality=95',
+    logo_url: 'https://sun9-51.userapi.com/s/v1/ig2/wbcvBVuaktvccHbfoWYY1nJp11HKGMtceACo1LrLTFiMJzL1gtIPxPpQeSmdu2HPK3Zjd0LNtl9UiacbkVjF7IfL.jpg?as=32x32%2C48x48%2C72x72%2C108x108%2C160x160%2C240x240%2C360x360%2C480x480%2C540x540%2C640x640%2C720x720%2C1080x1080%2C1280x1280%2C1440x1440&ava=1&crop=100%2C131%2C1769%2C1769&cs=200x200&quality=95',
+    primary_action_url: 'https://dikidi.net/1659449',
+    primary_action_label: 'Записаться онлайн',
+    secondary_action_url: 'https://t.me/amate_sevastopol',
+    secondary_action_label: 'Telegram',
+    services_title: 'Услуги Аматэ',
+    services_subtitle: 'Подобрали ключевые направления из актуальных публикаций студии — от массажа до косметологии и коррекции фигуры.',
     services: [
-      { title: 'Оздоровительный массаж', description: 'Мягкая работа с телом для восстановления, расслабления и улучшения самочувствия.' },
-      { title: 'Лимфодренажный массаж', description: 'Программы ухода за телом с акцентом на лёгкость и комфорт.' },
-      { title: 'Коррекция фигуры', description: 'Комплексный подход к силуэту и уходу за телом.' },
-      { title: 'Косметология', description: 'Эстетические процедуры и персональный уход.' }
+      { title: 'Оздоровительный массаж', description: 'Для расслабления, восстановления и снятия мышечного напряжения.', price: 'по записи', image_url: 'https://sun9-17.userapi.com/s/v1/ig2/TVxuDhnUe9RAY-nVnDUha3Tle2_yFsXRE5dYGgl63eBSQCmQlVYwJ-WkNzlVV2X8Ug96uMBYVvJsrzc3-CPwvEDR.jpg?as=32x43%2C48x64%2C72x96%2C108x144%2C160x213%2C240x320%2C360x480%2C480x640%2C540x720%2C640x853%2C720x960%2C1080x1440%2C1280x1707%2C1440x1920%2C1920x2560&cs=200x267&from=bu&quality=95' },
+      { title: 'Лимфодренажный массаж', description: 'Работа с отёчностью, ощущением тяжести и тонусом тела.', price: 'по записи', image_url: 'https://sun9-78.userapi.com/s/v1/ig2/50oxGPFLOgd8OEaobpp0CPnVNAMx3--x-XPe91CdZJrWn_uFE297SNns4kOUrNQXJE1-qFGlb7M_uJhjE1lRx2mX.jpg?as=32x32%2C48x48%2C72x72%2C108x108%2C160x160%2C240x240%2C360x360%2C480x480%2C540x540%2C640x640%2C720x720%2C1080x1080%2C1280x1280%2C1440x1440%2C2560x2560&cs=200x200&from=bu&quality=95' },
+      { title: 'Антицеллюлитные программы', description: 'Комплексные программы коррекции фигуры и ухода за телом.', price: 'по записи', image_url: 'https://sun9-4.userapi.com/s/v1/ig2/SELerdOEZfH1fFBHUUdIAbOxTh23LKvvOPued1v-1XYjNovC6ZpJatypRuv6XzuuruXyeEJhutdRZ7vf9mwpTGFG.jpg?as=32x57%2C48x85%2C72x128%2C108x192%2C160x284%2C240x426%2C360x639%2C474x842&cs=200x355&from=bu&quality=95' },
+      { title: 'Косметология', description: 'Уходовые процедуры, пилинги и персонально подобранные программы для кожи.', price: 'консультация', image_url: 'https://sun9-71.userapi.com/s/v1/ig2/l1KJudahzQbENe3I-NQOhBy0A-jpQoLaa83xemg-wBuX_qk8yD-Lps_C5WnPE_UeLMLUIKrzSDUmMyH34HqC2OuP.jpg?as=32x57%2C48x85%2C72x128%2C108x192%2C160x284%2C240x426%2C360x639%2C474x842&cs=200x355&from=bu&quality=95' },
+      { title: 'Фотоэпиляция', description: 'Процедуры для гладкой кожи и уменьшения роста волос.', price: 'от 5 799 ₽ за всё тело', image_url: 'https://sun9-4.userapi.com/s/v1/ig2/igW2I3Qw0G5eTwEuMbvk6y0z5wyBOVy2HNmnB8xb3BQ4GuCEdXxNvZFk356c7Vz9xFzHsFxrQLJxAdvzL74qptdw.jpg?as=32x57%2C48x85%2C72x128%2C108x192%2C160x284%2C240x426%2C360x639%2C474x842&cs=200x355&from=bu&quality=95' },
+      { title: 'Аппаратные методики', description: 'RF, HIFEM и другие программы для качества кожи и контуров тела.', price: 'по записи', image_url: 'https://sun9-78.userapi.com/s/v1/ig2/50oxGPFLOgd8OEaobpp0CPnVNAMx3--x-XPe91CdZJrWn_uFE297SNns4kOUrNQXJE1-qFGlb7M_uJhjE1lRx2mX.jpg?as=32x32%2C48x48%2C72x72%2C108x108%2C160x160%2C240x240%2C360x360%2C480x480%2C540x540%2C640x640%2C720x720%2C1080x1080%2C1280x1280%2C1440x1440%2C2560x2560&cs=200x200&from=bu&quality=95' }
     ],
+    gallery_title: 'Атмосфера и процедуры',
+    gallery_subtitle: 'Использованы фотографии из публичной страницы студии.',
+    gallery_images: [
+      { url: 'https://sun9-17.userapi.com/s/v1/ig2/TVxuDhnUe9RAY-nVnDUha3Tle2_yFsXRE5dYGgl63eBSQCmQlVYwJ-WkNzlVV2X8Ug96uMBYVvJsrzc3-CPwvEDR.jpg?as=32x43%2C48x64%2C72x96%2C108x144%2C160x213%2C240x320%2C360x480%2C480x640%2C540x720%2C640x853%2C720x960%2C1080x1440%2C1280x1707%2C1440x1920%2C1920x2560&cs=200x267&from=bu&quality=95', alt: 'АМАТЭ Севастополь' },
+      { url: 'https://sun9-78.userapi.com/s/v1/ig2/50oxGPFLOgd8OEaobpp0CPnVNAMx3--x-XPe91CdZJrWn_uFE297SNns4kOUrNQXJE1-qFGlb7M_uJhjE1lRx2mX.jpg?as=32x32%2C48x48%2C72x72%2C108x108%2C160x160%2C240x240%2C360x360%2C480x480%2C540x540%2C640x640%2C720x720%2C1080x1080%2C1280x1280%2C1440x1440%2C2560x2560&cs=200x200&from=bu&quality=95', alt: 'АМАТЭ — процедуры' },
+      { url: 'https://sun9-4.userapi.com/s/v1/ig2/SELerdOEZfH1fFBHUUdIAbOxTh23LKvvOPued1v-1XYjNovC6ZpJatypRuv6XzuuruXyeEJhutdRZ7vf9mwpTGFG.jpg?as=32x57%2C48x85%2C72x128%2C108x192%2C160x284%2C240x426%2C360x639%2C474x842&cs=200x355&from=bu&quality=95', alt: 'АМАТЭ — эстетика тела' },
+      { url: 'https://sun9-71.userapi.com/s/v1/ig2/l1KJudahzQbENe3I-NQOhBy0A-jpQoLaa83xemg-wBuX_qk8yD-Lps_C5WnPE_UeLMLUIKrzSDUmMyH34HqC2OuP.jpg?as=32x57%2C48x85%2C72x128%2C108x192%2C160x284%2C240x426%2C360x639%2C474x842&cs=200x355&from=bu&quality=95', alt: 'АМАТЭ — косметология' },
+      { url: 'https://sun9-4.userapi.com/s/v1/ig2/igW2I3Qw0G5eTwEuMbvk6y0z5wyBOVy2HNmnB8xb3BQ4GuCEdXxNvZFk356c7Vz9xFzHsFxrQLJxAdvzL74qptdw.jpg?as=32x57%2C48x85%2C72x128%2C108x192%2C160x284%2C240x426%2C360x639%2C474x842&cs=200x355&from=bu&quality=95', alt: 'АМАТЭ — уходовые процедуры' }
+    ],
+    benefits_title: 'Забота без суеты',
     benefits: [
-      { title: 'Комплексный подход', description: 'Массаж, эстетика тела и косметология в одном пространстве.' },
-      { title: 'Персональные программы', description: 'Процедуры подбираются под задачи и комфорт клиента.' },
-      { title: 'Удобная запись', description: 'Быстрая связь и понятный путь от выбора услуги до визита.' }
+      { title: 'Несколько направлений', description: 'Массаж, косметология, аппаратные процедуры и коррекция фигуры в одном месте.' },
+      { title: 'Персональный подход', description: 'Программы подбираются под конкретный запрос и комфорт клиента.' },
+      { title: 'Онлайн-запись', description: 'Клиент может сразу выбрать удобное время через Dikidi или написать в Telegram.' }
     ],
-    theme: { accent:'#9B7B63', accent2:'#6F5A49', background:'#F7F4F0', surface:'#FFFFFF', text:'#1D1B19', muted:'#756F69' },
+    faq: [
+      { question: 'Где находится студия?', answer: 'Севастополь, проспект Античный, 26к4.' },
+      { question: 'Как записаться?', answer: 'Через онлайн-запись Dikidi, Telegram @amate_sevastopol или по телефону +7 978 888-60-90.' },
+      { question: 'Какие направления есть?', answer: 'Массажи, косметология, фотоэпиляция, аппаратные методики и программы коррекции фигуры.' }
+    ],
+    theme: { accent:'#B7A488', accent2:'#7E6B54', background:'#F5F1EB', surface:'#FFFFFF', text:'#211D18', muted:'#746C62' },
+    contact_title: 'Запишитесь в Аматэ',
+    contact_text: 'Проспект Античный, 26к4 · онлайн-запись и Telegram',
     footer_note: 'Демо-концепт сайта от VELORA AI'
   },
   'studio17-sevastopol': {
