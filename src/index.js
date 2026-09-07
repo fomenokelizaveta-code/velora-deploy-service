@@ -1783,7 +1783,23 @@ async function deployToCloudflarePages(siteDir, projectName, accountId, apiToken
       }
     );
 
-    const deploymentUrl = `https://${projectName}.pages.dev`;
+    let deploymentUrl = `https://${projectName}.pages.dev`;
+    try {
+      const projectInfoUrl = `https://api.cloudflare.com/client/v4/accounts/${accountId}/pages/projects/${projectName}`;
+      const projectInfo = await axios.get(projectInfoUrl, {
+        timeout: 15000,
+        headers: {
+          'Authorization': `Bearer ${apiToken}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      const actualSubdomain = projectInfo.data?.result?.subdomain;
+      if (actualSubdomain) {
+        deploymentUrl = `https://${actualSubdomain}`;
+      }
+    } catch (lookupError) {
+      console.warn('Could not resolve actual Pages subdomain:', lookupError.message);
+    }
     console.log(`Deployment successful: ${deploymentUrl}`);
     return deploymentUrl;
   } catch (error) {
@@ -2281,7 +2297,7 @@ app.get('/v1/maintenance/vard-cloudflare-info-20260908', async function (req, re
 // It clones the existing public site (including assets), backs it up, applies a compatibility
 // patch, validates desktop/Android/iPhone-sized layouts, then republishes the original project.
 app.get('/v1/maintenance/rebuild-vard-20260908', async function (req, res) {
-  const projectName='vard-flowers-velora';
+  const projectName='vard-flowers-sevastopol';
   const sourceRoot='https://vard-flowers-velora.pages.dev';
   const backupProject='vard-flowers-velora-backup-20260908';
   const testProject='vard-flowers-responsive-test-20260908';
