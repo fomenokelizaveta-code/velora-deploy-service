@@ -1,0 +1,38 @@
+name: Generate sales materials
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/generate-sales-materials.yml'
+  workflow_dispatch:
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        slug:
+          - amate-sevastopol
+          - studio17-sevastopol
+          - bazhanova-clinic-sevastopol
+          - selfie-sevastopol
+          - barbershop-777-sevastopol
+          - imperiya-stilya-sevastopol
+          - le-di-clinic-sevastopol
+    steps:
+      - name: Generate screenshots
+        run: |
+          set -euo pipefail
+          URL="https://velora-deploy-service-production.up.railway.app/demo/${{ matrix.slug }}/materials.json"
+          echo "Requesting $URL"
+          for i in 1 2 3; do
+            if curl -fLsS --max-time 180 "$URL" -o materials.json; then
+              cat materials.json
+              exit 0
+            fi
+            sleep 10
+          done
+          exit 1
