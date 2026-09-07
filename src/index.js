@@ -14,7 +14,7 @@ const PORT = process.env.PORT || 3000;
 
 const CLOUDFLARE_ACCOUNT_ID = process.env.CLOUDFLARE_ACCOUNT_ID;
 const CLOUDFLARE_API_TOKEN = process.env.CLOUDFLARE_API_TOKEN;
-const GENERATOR_VERSION = 'business-site-v4-cross-device';
+const GENERATOR_VERSION = 'business-site-v5-russia-safe-proxy';
 const VELORA_ADMIN_SECRET = process.env.VELORA_ADMIN_SECRET || '';
 const VELORA_API_KEY = process.env.VELORA_API_KEY || '';
 const VELORA_MAKE_API_KEY = process.env.VELORA_MAKE_API_KEY || '';
@@ -34,6 +34,76 @@ app.get('/v1/build', function (req, res) {
     ok: true,
     generator: GENERATOR_VERSION
   });
+});
+
+app.get('/vard', function (req, res) {
+  return res.redirect(302, '/vard/');
+});
+
+app.get('/vard/', async function (req, res) {
+  return proxyCloudflarePagesRequest(req, res, 'vard-flowers-sevastopol', '', '/vard/');
+});
+
+app.get('/vard/*', async function (req, res) {
+  return proxyCloudflarePagesRequest(req, res, 'vard-flowers-sevastopol', req.params[0] || '', '/vard/');
+});
+
+app.get('/vard-api', function (req, res) {
+  return res.redirect(302, '/vard-api/');
+});
+
+app.get('/vard-api/*', async function (req, res) {
+  const rel = String(req.params[0] || '').replace(/^\/+/, '');
+  const upstream = 'https://blue-cvard-flowers-cms-apiloud-58a4.lolikingor18.workers.dev/' + rel;
+  try {
+    const response = await axios.get(upstream, {
+      timeout: 20000,
+      maxRedirects: 5,
+      responseType: 'arraybuffer',
+      validateStatus: function () { return true; },
+      headers: {
+        'User-Agent': 'Velora-Railway-Gateway/1.0',
+        'Accept': req.get('accept') || '*/*'
+      }
+    });
+    let data = Buffer.from(response.data || []);
+    const contentType = String(response.headers['content-type'] || 'application/octet-stream');
+    if (/json|text|javascript/i.test(contentType)) {
+      let text = data.toString('utf8');
+      const origin = publicRequestOrigin(req);
+      text = text
+        .replace(/https:\/\/vard-flowers-velora(?:-1qm)?\.pages\.dev\//g, origin + '/vard/')
+        .replace(/https:\/\/vard-flowers-sevastopol\.pages\.dev\//g, origin + '/vard/')
+        .replace(/(["'])\/assets\//g, '$1/vard/assets/')
+        .replace(/(["'])\/fonts\//g, '$1/vard/fonts/');
+      data = Buffer.from(text, 'utf8');
+    }
+    res.status(response.status);
+    res.set('Content-Type', contentType);
+    res.set('Cache-Control', 'no-store');
+    return res.send(data);
+  } catch (error) {
+    console.error('VARD CMS gateway error:', error.message);
+    return res.status(502).send('VARD CMS gateway unavailable');
+  }
+});
+
+app.get('/site/:subdomain', function (req, res) {
+  const subdomain = sanitizePagesSubdomain(req.params.subdomain);
+  if (!subdomain) return res.status(400).send('Invalid site');
+  return res.redirect(302, '/site/' + encodeURIComponent(subdomain) + '/');
+});
+
+app.get('/site/:subdomain/', async function (req, res) {
+  const subdomain = sanitizePagesSubdomain(req.params.subdomain);
+  if (!subdomain) return res.status(400).send('Invalid site');
+  return proxyCloudflarePagesRequest(req, res, subdomain, '', '/site/' + encodeURIComponent(subdomain) + '/');
+});
+
+app.get('/site/:subdomain/*', async function (req, res) {
+  const subdomain = sanitizePagesSubdomain(req.params.subdomain);
+  if (!subdomain) return res.status(400).send('Invalid site');
+  return proxyCloudflarePagesRequest(req, res, subdomain, req.params[0] || '', '/site/' + encodeURIComponent(subdomain) + '/');
 });
 
 // Protected lightweight admin editor for updating a generated site's brief.
@@ -181,7 +251,7 @@ app.post('/v1/admin/update', async function (req, res) {
     fs.rmSync(tempDir,{recursive:true,force:true});
     return res.json({
       status:'OK',
-      site_result_url:deploymentUrl,
+      site_result_url:publicSiteUrl(req, deploymentUrl),
       site_admin_url:publicAdminUrl(req, site_slug),
       site_slug
     });
@@ -190,6 +260,91 @@ app.post('/v1/admin/update', async function (req, res) {
     return res.status(200).json({status:'ERROR', error:error.message, site_slug});
   }
 });
+
+
+function publicRequestOrigin(req) {
+  const protocol = String(req.headers['x-forwarded-proto'] || req.protocol || 'https').split(',')[0].trim();
+  const host = req.get('host');
+  return protocol + '://' + host;
+}
+
+function sanitizePagesSubdomain(value) {
+  const text = String(value || '').toLowerCase().trim();
+  return /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(text) ? text : '';
+}
+
+function publicSiteUrl(req, deploymentUrl) {
+  try {
+    const parsed = new URL(String(deploymentUrl || ''));
+    if (!parsed.hostname.endsWith('.pages.dev')) return deploymentUrl;
+    const subdomain = sanitizePagesSubdomain(parsed.hostname.slice(0, -'.pages.dev'.length));
+    if (!subdomain) return deploymentUrl;
+    return publicRequestOrigin(req) + '/site/' + encodeURIComponent(subdomain) + '/';
+  } catch (error) {
+    return deploymentUrl;
+  }
+}
+
+function rewriteProxiedText(text, req, subdomain, publicBasePath) {
+  const origin = publicRequestOrigin(req);
+  const base = publicBasePath || ('/site/' + encodeURIComponent(subdomain) + '/');
+  let out = String(text || '');
+
+  // Keep all local VARD assets on Railway instead of sending the client back to Cloudflare.
+  out = out
+    .replace(/(["'(=])\/assets\//g, '$1' + base + 'assets/')
+    .replace(/(["'(=])\/fonts\//g, '$1' + base + 'fonts/')
+    .replace(/(["'(=])\/content\.js/g, '$1' + base + 'content.js');
+
+  if (subdomain.indexOf('vard-flowers') === 0) {
+    out = out
+      .replace(/https:\/\/blue-cvard-flowers-cms-apiloud-58a4\.lolikingor18\.workers\.dev/g, origin + '/vard-api')
+      .replace(/https:\/\/vard-flowers-velora(?:-1qm)?\.pages\.dev\//g, origin + base)
+      .replace(/https:\/\/vard-flowers-sevastopol\.pages\.dev\//g, origin + base);
+  }
+
+  return out;
+}
+
+async function proxyCloudflarePagesRequest(req, res, subdomain, relativePath, publicBasePath) {
+  const safeSubdomain = sanitizePagesSubdomain(subdomain);
+  if (!safeSubdomain) return res.status(400).send('Invalid site');
+
+  const rel = String(relativePath || '').replace(/^\/+/, '');
+  const upstream = 'https://' + safeSubdomain + '.pages.dev/' + rel;
+
+  try {
+    const response = await axios.get(upstream, {
+      timeout: 25000,
+      maxRedirects: 5,
+      responseType: 'arraybuffer',
+      validateStatus: function () { return true; },
+      headers: {
+        'User-Agent': req.get('user-agent') || 'Velora-Railway-Gateway/1.0',
+        'Accept': req.get('accept') || '*/*'
+      }
+    });
+
+    let data = Buffer.from(response.data || []);
+    const contentType = String(response.headers['content-type'] || 'application/octet-stream');
+
+    if (/text\/html|text\/css|javascript|application\/json|text\/plain/i.test(contentType)) {
+      data = Buffer.from(
+        rewriteProxiedText(data.toString('utf8'), req, safeSubdomain, publicBasePath),
+        'utf8'
+      );
+    }
+
+    res.status(response.status);
+    res.set('Content-Type', contentType);
+    res.set('Cache-Control', /text\/html/i.test(contentType) ? 'no-cache' : 'public, max-age=300');
+    res.set('X-Velora-Gateway', 'railway');
+    return res.send(data);
+  } catch (error) {
+    console.error('Pages gateway error for ' + safeSubdomain + ':', error.message);
+    return res.status(502).send('Site gateway unavailable');
+  }
+}
 
 function isDeployAuthorized(req) {
   const supplied = String(req.get('x-velora-api-key') || '');
@@ -868,7 +1023,7 @@ async function performSiteDeployment(req, payload) {
     return {
       status: 'OK',
       client_id,
-      site_result_url: deploymentUrl,
+      site_result_url: publicSiteUrl(req, deploymentUrl),
       site_admin_url: publicAdminUrl(req, sanitizedSlug),
       site_slug: sanitizedSlug,
       template,
