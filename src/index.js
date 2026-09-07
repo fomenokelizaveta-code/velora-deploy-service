@@ -36,11 +36,7 @@ app.get('/v1/build', function (req, res) {
   });
 });
 
-app.get('/vard', function (req, res) {
-  return res.redirect(302, '/vard/');
-});
-
-app.get('/vard/', async function (req, res) {
+app.get('/vard', async function (req, res) {
   return proxyCloudflarePagesRequest(req, res, 'vard-flowers-sevastopol', '', '/vard/');
 });
 
@@ -88,13 +84,7 @@ app.get('/vard-api/*', async function (req, res) {
   }
 });
 
-app.get('/site/:subdomain', function (req, res) {
-  const subdomain = sanitizePagesSubdomain(req.params.subdomain);
-  if (!subdomain) return res.status(400).send('Invalid site');
-  return res.redirect(302, '/site/' + encodeURIComponent(subdomain) + '/');
-});
-
-app.get('/site/:subdomain/', async function (req, res) {
+app.get('/site/:subdomain', async function (req, res) {
   const subdomain = sanitizePagesSubdomain(req.params.subdomain);
   if (!subdomain) return res.status(400).send('Invalid site');
   return proxyCloudflarePagesRequest(req, res, subdomain, '', '/site/' + encodeURIComponent(subdomain) + '/');
