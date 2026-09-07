@@ -14,7 +14,7 @@ const PORT = process.env.PORT || 3000;
 
 const CLOUDFLARE_ACCOUNT_ID = process.env.CLOUDFLARE_ACCOUNT_ID;
 const CLOUDFLARE_API_TOKEN = process.env.CLOUDFLARE_API_TOKEN;
-const GENERATOR_VERSION = 'business-site-v3-admin';
+const GENERATOR_VERSION = 'business-site-v4-cross-device';
 const VELORA_ADMIN_SECRET = process.env.VELORA_ADMIN_SECRET || '';
 const VELORA_API_KEY = process.env.VELORA_API_KEY || '';
 const VELORA_MAKE_API_KEY = process.env.VELORA_MAKE_API_KEY || '';
@@ -47,7 +47,7 @@ app.get('/v1/admin', function (req, res) {
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Velora Admin</title>
   <style>
     body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f5f3ef;color:#171717;margin:0}
@@ -455,6 +455,35 @@ async function runSiteQa({site_url,business_name,expected_phone,expected_contact
   });
 
   add('http_status',response.status>=200&&response.status<400,String(response.status));
+
+  const deviceProfiles=[
+    {
+      name:'windows',
+      ua:'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36'
+    },
+    {
+      name:'android',
+      ua:'Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Mobile Safari/537.36'
+    },
+    {
+      name:'iphone',
+      ua:'Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.6 Mobile/15E148 Safari/604.1'
+    }
+  ];
+  for(const profile of deviceProfiles){
+    try{
+      const deviceResp=await axios.get(site_url,{
+        timeout:15000,
+        maxRedirects:5,
+        validateStatus:()=>true,
+        headers:{'User-Agent':profile.ua,'Accept':'text/html,application/xhtml+xml'}
+      });
+      add('device_http_'+profile.name,deviceResp.status>=200&&deviceResp.status<400,String(deviceResp.status));
+    }catch(e){
+      add('device_http_'+profile.name,false,e.message);
+    }
+  }
+
   const html=typeof response.data==='string' ? response.data : String(response.data||'');
 
   add('html_present',html.length>300,'bytes='+html.length);
@@ -522,7 +551,8 @@ async function runSiteQa({site_url,business_name,expected_phone,expected_contact
   }
 
   const criticalNames=new Set([
-    'http_status','html_present','viewport_meta','title_present','h1_present',
+    'http_status','device_http_windows','device_http_android','device_http_iphone',
+    'html_present','viewport_meta','title_present','h1_present',
     'business_name_present','no_placeholder_text','brief_available',
     'phone_link_present','telegram_link_present'
   ]);
@@ -1063,7 +1093,7 @@ async function generateStaticSite(outDir, brief, projectName) {
 <html lang="${escapeAttr(cleanText(brief.language, 'ru'))}">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>${escapeHtml(seoTitle)}</title>
   <meta name="description" content="${escapeAttr(seoDescription)}">
   <meta name="theme-color" content="${escapeAttr(theme.background)}">
@@ -1079,7 +1109,7 @@ async function generateStaticSite(outDir, brief, projectName) {
       --surface: ${theme.surface};
       --text: ${theme.text};
       --muted: ${theme.muted};
-      --line: color-mix(in srgb, var(--text) 12%, transparent);
+      --line: rgba(23, 23, 23, .12);
       --shadow: 0 22px 60px rgba(24, 20, 17, .10);
       --radius: 28px;
     }
@@ -1088,21 +1118,28 @@ async function generateStaticSite(outDir, brief, projectName) {
     html { scroll-behavior: smooth; }
     body {
       margin: 0;
+      width: 100%;
+      min-width: 0;
+      overflow-x: hidden;
       font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background: var(--bg);
       color: var(--text);
       line-height: 1.5;
       -webkit-font-smoothing: antialiased;
+      text-size-adjust: 100%;
+      -webkit-text-size-adjust: 100%;
     }
     a { color: inherit; text-decoration: none; }
-    img { display: block; width: 100%; }
+    img { display: block; width: 100%; max-width: 100%; }
     button, a { -webkit-tap-highlight-color: transparent; }
-    .shell { width: min(1180px, calc(100% - 40px)); margin: 0 auto; }
-    .shell-narrow { width: min(860px, calc(100% - 40px)); margin: 0 auto; }
+    .shell { width: calc(100% - 40px); max-width: 1180px; margin: 0 auto; }
+    .shell-narrow { width: calc(100% - 40px); max-width: 860px; margin: 0 auto; }
 
     .site-header {
       position: absolute;
-      inset: 0 0 auto;
+      top: 0;
+      left: 0;
+      right: 0;
       z-index: 20;
       padding: 22px 0;
       color: white;
@@ -1134,16 +1171,19 @@ async function generateStaticSite(outDir, brief, projectName) {
       position: relative;
       min-height: 760px;
       display: flex;
-      align-items: end;
+      align-items: flex-end;
       overflow: hidden;
       background:
-        radial-gradient(circle at 78% 18%, color-mix(in srgb, var(--accent) 45%, transparent), transparent 34%),
+        radial-gradient(circle at 78% 18%, rgba(181,138,98,.34), transparent 34%),
         linear-gradient(145deg, #111 0%, #28221d 100%);
       color: white;
     }
     .hero-media {
       position: absolute;
-      inset: 0;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
       width: 100%;
       height: 100%;
       object-fit: cover;
@@ -1151,7 +1191,10 @@ async function generateStaticSite(outDir, brief, projectName) {
     }
     .hero-overlay {
       position: absolute;
-      inset: 0;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
       background:
         linear-gradient(90deg, rgba(10,9,8,.76) 0%, rgba(10,9,8,.44) 48%, rgba(10,9,8,.10) 100%),
         linear-gradient(0deg, rgba(10,9,8,.70) 0%, transparent 46%);
@@ -1197,6 +1240,9 @@ async function generateStaticSite(outDir, brief, projectName) {
       border-radius: 999px;
       font-weight: 700;
       font-size: 14px;
+      line-height: 1.2;
+      text-align: center;
+      white-space: normal;
       transition: transform .2s ease, opacity .2s ease;
     }
     .button:hover { transform: translateY(-2px); }
@@ -1206,7 +1252,7 @@ async function generateStaticSite(outDir, brief, projectName) {
     .hero .button-ghost { border-color: rgba(255,255,255,.34); color: white; }
 
     .section { padding: 104px 0; }
-    .section-soft { background: color-mix(in srgb, var(--accent) 8%, var(--bg)); }
+    .section-soft { background: rgba(181,138,98,.08); }
     .section-dark { background: #171512; color: white; }
     .section-head { max-width: 760px; margin-bottom: 48px; }
     .section-head.split {
@@ -1348,6 +1394,7 @@ async function generateStaticSite(outDir, brief, projectName) {
       z-index: 40;
       left: 12px;
       right: 12px;
+      bottom: 12px;
       bottom: max(12px, env(safe-area-inset-bottom));
       gap: 8px;
       padding: 8px;
@@ -1356,7 +1403,8 @@ async function generateStaticSite(outDir, brief, projectName) {
       backdrop-filter: blur(16px);
       box-shadow: 0 12px 40px rgba(0,0,0,.24);
     }
-    .mobile-actions a { flex: 1; min-height: 46px; }
+    .mobile-actions a { flex: 1; min-width: 0; min-height: 46px; padding-left: 12px; padding-right: 12px; overflow-wrap: anywhere; }
+    .brand span, .hero h1, .hero-lead, .contact-list strong { overflow-wrap: anywhere; }
 
     @media (max-width: 900px) {
       .nav { display: none; }
@@ -1379,7 +1427,7 @@ async function generateStaticSite(outDir, brief, projectName) {
     }
 
     @media (max-width: 620px) {
-      .shell, .shell-narrow { width: min(100% - 28px, 1180px); }
+      .shell, .shell-narrow { width: calc(100% - 28px); }
       .site-header { padding-top: 14px; }
       .brand-logo, .brand-mark { width: 38px; height: 38px; }
       .brand span { max-width: 210px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 15px; }
@@ -1389,7 +1437,7 @@ async function generateStaticSite(outDir, brief, projectName) {
       .hero-lead { font-size: 16px; line-height: 1.45; margin-top: 14px; }
       .eyebrow { font-size: 10px; letter-spacing: .16em; margin-bottom: 12px; }
       .hero-actions { gap: 8px; margin-top: 20px; }
-      .hero-actions .button { width: auto; min-height: 48px; padding: 0 18px; }
+      .hero-actions .button { width: 100%; min-height: 48px; padding: 0 18px; }
       .section { padding: 50px 0; }
       .section-head { margin-bottom: 26px; }
       .section-head h2 { font-size: 32px; line-height: 1.05; }
@@ -1413,6 +1461,15 @@ async function generateStaticSite(outDir, brief, projectName) {
       .footer-row { flex-direction: column; }
       .mobile-actions { display: flex; }
       footer { padding-bottom: 106px; }
+    }
+
+    @media (max-width: 380px) {
+      .shell, .shell-narrow { width: calc(100% - 20px); }
+      .hero h1 { font-size: 32px; }
+      .hero-lead { font-size: 15px; }
+      .contact-card { padding: 20px; }
+      .mobile-actions { left: 8px; right: 8px; padding: 6px; }
+      .mobile-actions a { font-size: 12px; padding-left: 8px; padding-right: 8px; }
     }
   </style>
 </head>
@@ -2167,6 +2224,31 @@ app.get('/demo/:slug', function (req, res) {
   fs.mkdirSync(outDir, { recursive: true });
   generateStaticSite(outDir, brief, slug);
   res.sendFile(path.join(outDir, 'index.html'));
+});
+
+// Temporary, tightly scoped maintenance hook for rebuilding the current VARD Flowers site
+// with the cross-device template. It only reads the site's existing public brief and
+// republishes that same brief; it cannot accept arbitrary content or slugs.
+app.get('/v1/maintenance/rebuild-vard-20260908', async function (req, res) {
+  const projectName='vard-flowers-velora';
+  let tempDir='';
+  try{
+    const source='https://'+projectName+'.pages.dev/velora-brief.json';
+    const briefResp=await axios.get(source,{timeout:20000,validateStatus:()=>true});
+    if(briefResp.status<200||briefResp.status>=400||!briefResp.data||typeof briefResp.data!=='object'){
+      return res.status(502).json({status:'ERROR',error:'Could not load existing VARD brief',source_status:briefResp.status});
+    }
+    tempDir=path.join('/tmp','velora-maint-vard-'+Date.now());
+    fs.mkdirSync(tempDir,{recursive:true});
+    await generateStaticSite(tempDir,briefResp.data,projectName);
+    await ensureCloudflareProject(projectName);
+    const url=await deployToCloudflarePages(tempDir,projectName,CLOUDFLARE_ACCOUNT_ID,CLOUDFLARE_API_TOKEN);
+    return res.json({status:'OK',site_result_url:url,generator:GENERATOR_VERSION});
+  }catch(error){
+    return res.status(500).json({status:'ERROR',error:error.message});
+  }finally{
+    if(tempDir) fs.rmSync(tempDir,{recursive:true,force:true});
+  }
 });
 
 app.listen(PORT, '0.0.0.0', function () {
