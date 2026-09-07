@@ -1741,6 +1741,92 @@ function escapeHtml(text) {
   return String(text).replace(/[&<>"']/g, m => map[m]);
 }
 
+
+const SALES_DEMOS = {
+  'amate-sevastopol': {
+    business_name: 'АМАТЭ Севастополь',
+    eyebrow: 'Студия эстетики тела · Севастополь',
+    headline: 'Красота тела начинается с заботы о себе',
+    business_description: 'Оздоровительные, спортивные, лимфодренажные и антицеллюлитные массажи, косметология и программы коррекции фигуры.',
+    subheadline: 'Современная студия эстетики тела с комплексным подходом к самочувствию, восстановлению и красоте.',
+    phone: '+7 978 888-60-90',
+    telegram: '@amate_sevastopol',
+    address: 'Севастополь, проспект Античный, 26к4',
+    primary_action_label: 'Записаться по телефону',
+    services: [
+      { title: 'Оздоровительный массаж', description: 'Мягкая работа с телом для восстановления, расслабления и улучшения самочувствия.' },
+      { title: 'Лимфодренажный массаж', description: 'Программы ухода за телом с акцентом на лёгкость и комфорт.' },
+      { title: 'Коррекция фигуры', description: 'Комплексный подход к силуэту и уходу за телом.' },
+      { title: 'Косметология', description: 'Эстетические процедуры и персональный уход.' }
+    ],
+    benefits: [
+      { title: 'Комплексный подход', description: 'Массаж, эстетика тела и косметология в одном пространстве.' },
+      { title: 'Персональные программы', description: 'Процедуры подбираются под задачи и комфорт клиента.' },
+      { title: 'Удобная запись', description: 'Быстрая связь и понятный путь от выбора услуги до визита.' }
+    ],
+    theme: { accent:'#9B7B63', accent2:'#6F5A49', background:'#F7F4F0', surface:'#FFFFFF', text:'#1D1B19', muted:'#756F69' },
+    footer_note: 'Демо-концепт сайта от VELORA AI'
+  },
+  'studio17-sevastopol': {
+    business_name: 'Студия 17',
+    eyebrow: 'Barbershop · Севастополь',
+    headline: 'Стиль, который работает на вас',
+    business_description: 'Мужские стрижки, оформление бороды и бритьё в атмосфере современного барбершопа.',
+    subheadline: 'Аккуратная форма, сильный образ и внимание к деталям — без лишнего.',
+    phone: '+7 978 682-72-92',
+    telegram: '@studiO_17_sev',
+    address: 'Севастополь, проспект Победы, 1А',
+    primary_action_label: 'Записаться',
+    services: [
+      { title: 'Мужская стрижка', description: 'Форма под стиль, структуру волос и образ жизни.' },
+      { title: 'Оформление бороды', description: 'Контур, длина и аккуратная финальная укладка.' },
+      { title: 'Классическое бритьё', description: 'Традиционный ритуал чистого бритья и ухода.' },
+      { title: 'Стрижка + борода', description: 'Комплексный образ за один визит.' }
+    ],
+    benefits: [
+      { title: 'Опытные мастера', description: 'Работа с формой и деталями, которые заметны в результате.' },
+      { title: 'Комфортная атмосфера', description: 'Пространство, куда хочется возвращаться.' },
+      { title: 'Удобная запись', description: 'Связь с барбершопом в один клик.' }
+    ],
+    theme: { accent:'#C5A56A', accent2:'#836A43', background:'#111111', surface:'#1A1A1A', text:'#F5F0E8', muted:'#B0AAA1' },
+    footer_note: 'Демо-концепт сайта от VELORA AI'
+  },
+  'selfie-sevastopol': {
+    business_name: 'Selfie',
+    eyebrow: 'Салон красоты · Севастополь',
+    headline: 'Красота в деталях',
+    business_description: 'Салон красоты, парикмахерские услуги и ногтевой сервис в центре Севастополя.',
+    subheadline: 'Уход, стиль и мастера, которым можно доверить свой образ.',
+    phone: '+7 978 082-58-22',
+    address: 'Севастополь, Большая Морская улица, 5',
+    primary_action_label: 'Позвонить и записаться',
+    services: [
+      { title: 'Парикмахерские услуги', description: 'Стрижки, окрашивание и уход за волосами.' },
+      { title: 'Маникюр', description: 'Аккуратный уход и современный дизайн.' },
+      { title: 'Педикюр', description: 'Эстетика и комфорт в каждой детали.' },
+      { title: 'Мужской сервис', description: 'Уход и ногтевой сервис для мужчин.' }
+    ],
+    benefits: [
+      { title: 'Сильные мастера', description: 'Профессиональный подход и внимание к пожеланиям.' },
+      { title: 'Широкий выбор услуг', description: 'Несколько направлений красоты в одном салоне.' },
+      { title: 'Удобное расположение', description: 'Центр Севастополя, Большая Морская.' }
+    ],
+    theme: { accent:'#B58F9B', accent2:'#866671', background:'#FAF5F7', surface:'#FFFFFF', text:'#241F21', muted:'#7B7175' },
+    footer_note: 'Демо-концепт сайта от VELORA AI'
+  }
+};
+
+app.get('/demo/:slug', function (req, res) {
+  const slug = String(req.params.slug || '').toLowerCase();
+  const brief = SALES_DEMOS[slug];
+  if (!brief) return res.status(404).send('Demo not found');
+
+  const outDir = path.join('/tmp', 'velora-sales-demo-' + slug);
+  fs.mkdirSync(outDir, { recursive: true });
+  generateStaticSite(outDir, brief, slug);
+  res.sendFile(path.join(outDir, 'index.html'));
+});
+
 app.listen(PORT, '0.0.0.0', function () {
   console.log('Velora Deploy Service listening on port ' + PORT);
 });
