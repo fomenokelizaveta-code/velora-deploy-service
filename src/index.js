@@ -2236,7 +2236,13 @@ app.get('/v1/maintenance/rebuild-vard-20260908', async function (req, res) {
     const source='https://'+projectName+'.pages.dev/velora-brief.json';
     const briefResp=await axios.get(source,{timeout:20000,validateStatus:()=>true});
     if(briefResp.status<200||briefResp.status>=400||!briefResp.data||typeof briefResp.data!=='object'){
-      return res.status(502).json({status:'ERROR',error:'Could not load existing VARD brief',source_status:briefResp.status});
+      return res.status(200).json({
+        status:'ERROR',
+        error:'Could not load existing VARD brief',
+        source_status:briefResp.status,
+        source_type:typeof briefResp.data,
+        source_preview:typeof briefResp.data==='string' ? briefResp.data.slice(0,300) : JSON.stringify(briefResp.data||{}).slice(0,300)
+      });
     }
     tempDir=path.join('/tmp','velora-maint-vard-'+Date.now());
     fs.mkdirSync(tempDir,{recursive:true});
