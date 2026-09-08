@@ -1,0 +1,62 @@
+{
+  "client_id": "bonbuket-sevastopol",
+  "business_name": "BonBuket Севастополь",
+  "status": "BLOCKED_ADMIN_PROVISIONING",
+  "verified_business_contact": "+79783324344",
+  "contact_sources": [
+    "https://bonbuket92.clients.site/",
+    "https://t.me/s/BonBuketSevas?before=452"
+  ],
+  "existing_site": "https://bonbuket92.clients.site/",
+  "demo_url": "https://velora-deploy-service-production.up.railway.app/demo/bonbuket-sevastopol",
+  "checked_at": "2026-09-08",
+  "changes": {
+    "phone_only_contact": true,
+    "customer_facing_copy": true,
+    "real_bouquet_photos": 3,
+    "photos_live": true,
+    "syntax_check": "passed"
+  },
+  "qa": {
+    "mobile_visual": "pending",
+    "desktop_visual": "pending",
+    "real_android": "not_tested",
+    "admin": "not_provisioned"
+  },
+  "delivery": {
+    "sent": false,
+    "delivery_id": null,
+    "delivered": null
+  },
+  "blocker": {
+    "code": "MISSING_DEPLOY_CREDENTIAL_IN_GITHUB",
+    "evidence": "GitHub Actions run 34195232787: Create test site and verify Railway public URL skipped; workflow conditions this step on secrets.VELORA_API_KEY being nonempty.",
+    "required_action": "Configure the existing valid VELORA_API_KEY through the authorized GitHub secret settings, or reconnect an authenticated deploy integration. Do not change the server key or weaken authentication.",
+    "retry_after": "after authenticated deploy access restored"
+  },
+  "next_actions": [
+    "Publish BonBuket through authenticated /v1/deploy using its current brief.",
+    "Validate admin load/save and public site update.",
+    "Inspect one actual mobile first-screen screenshot and desktop layout.",
+    "Check campaign ledger and message history for duplicates before sending.",
+    "Send one photo and a personal message without price only after QA and admin checks pass."
+  ],
+  "protected_clients": [
+    "АМАТЭ",
+    "Студия17",
+    "LE Di Clinic"
+  ],
+  "reply_policy": {
+    "enabled": false,
+    "reason": "Incoming Make scenario has only an inactive webhook; no operational reply handler verified.",
+    "rules": [
+      "Read actual inbound and identify client before replying.",
+      "Use checked facts; do not invent price, deadlines, discounts or guarantees.",
+      "Keep replies brief and professional; answer the client's actual question.",
+      "Respect refusal and stop outreach.",
+      "Escalate readiness to pay, disputed terms and complaints to owner.",
+      "Deduplicate by inbound message ID; never answer own outgoing events.",
+      "Protected three remain excluded under user's existing instruction."
+    ]
+  }
+}
