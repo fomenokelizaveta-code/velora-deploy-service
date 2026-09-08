@@ -1,0 +1,111 @@
+name: Publish and verify next salon batch
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/publish-salon-batch.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: velora-publish-salon-batch
+  cancel-in-progress: false
+jobs:
+  publish:
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        include:
+          - slug: nova-rostov
+            phone: '+79635698703'
+          - slug: belyi-krolik-krasnodar
+            phone: '+79823632243'
+          - slug: sostoyanie-krasnodar
+            phone: '+79654574150'
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      VELORA_API_KEY: ${{ secrets.VELORA_API_KEY }}
+      CLIENT_SLUG: ${{ matrix.slug }}
+      CLIENT_PHONE: ${{ matrix.phone }}
+      BASE_URL: https://velora-deploy-service-production.up.railway.app
+    steps:
+      - uses: actions/checkout@v4
+      - name: Publish one prospect and verify protected admin
+        run: |
+          node <<'JS'
+          const fs=require('fs'),vm=require('vm');
+          (async()=>{
+            if(!process.env.VELORA_API_KEY)throw Error('MISSING_VELORA_API_KEY');
+            const app={use(){},get(){},post(){},listen(){}};
+            const express=()=>app;express.json=()=>{};
+            const box={require:m=>m==='express'?express:m==='axios'?{}:m==='playwright-core'?{}:require(m),process,console,Buffer,URL};
+            vm.createContext(box);
+            vm.runInContext(fs.readFileSync('src/index.js','utf8')+"\nthis.brief=SALES_DEMOS[process.env.CLIENT_SLUG];",box);
+            const brief=box.brief;
+            if(!brief||!brief.hero_image||brief.phone!==process.env.CLIENT_PHONE)throw Error('BRIEF_VALIDATION');
+            const base=process.env.BASE_URL;
+            const response=await fetch(base+'/v1/deploy',{method:'POST',headers:{'Content-Type':'application/json','x-velora-api-key':process.env.VELORA_API_KEY},body:JSON.stringify({client_id:process.env.CLIENT_SLUG,site_slug:process.env.CLIENT_SLUG,site_build_brief:brief}),signal:AbortSignal.timeout(180000)});
+            if(!response.ok)throw Error('DEPLOY_HTTP_'+response.status);
+            const data=await response.json();
+            if(data.status!=='OK')throw Error('DEPLOY_FAILED');
+            const admin=new URL(data.site_admin_url);
+            const site=new URL(data.site_result_url);
+            if(admin.origin!==base||site.origin!==base)throw Error('UNEXPECTED_ORIGIN');
+            const token=admin.searchParams.get('token');
+            const slug=admin.searchParams.get('slug');
+            if(!token||!slug)throw Error('MISSING_ADMIN');
+            console.log('::add-mask::'+token);
+            const adminResponse=await fetch(admin,{signal:AbortSignal.timeout(30000)});
+            const adminHtml=await adminResponse.text();
+            if(!adminResponse.ok||!adminHtml.includes('id="save"'))throw Error('ADMIN_PAGE_FAILED');
+            console.log('Public site: '+site.href);
+            let saved;
+            for(let attempt=0;attempt<6;attempt++){
+              saved=await fetch(base+'/v1/site-brief?slug='+encodeURIComponent(slug),{headers:{'x-velora-site-token':token},signal:AbortSignal.timeout(30000)});
+              if(saved.ok||saved.status!==404)break;
+              await new Promise(resolve=>setTimeout(resolve,10000));
+            }
+            if(!saved.ok)throw Error('ADMIN_BRIEF_HTTP_'+saved.status);
+            const stored=await saved.json();
+            if(stored.brief?.business_name!==brief.business_name||stored.brief?.hero_image!==brief.hero_image)throw Error('ADMIN_BRIEF_MISMATCH');
+            const unauth=await fetch(base+'/v1/admin?slug='+encodeURIComponent(slug));
+            if(unauth.status!==401)throw Error('ADMIN_AUTH_CHECK_FAILED');
+            fs.mkdirSync('batch-result',{recursive:true});
+            fs.writeFileSync('batch-result/report.json',JSON.stringify({client_id:process.env.CLIENT_SLUG,site_url:site.href,admin_page_verified:true,admin_brief_verified:true,unauthorized_admin_rejected:true,admin_save_tested:false,delivery:'NOT_SENT',checked_at:new Date().toISOString()},null,2));
+            console.log('Prospect site published; admin and protected brief verified.');
+          })().catch(e=>{console.error(e.message);process.exit(1)});
+          JS
+      - name: Install browser for visual checks
+        run: |
+          npm install --no-save --package-lock=false playwright
+          npx playwright install --with-deps chromium
+      - name: Verify mobile and desktop
+        run: |
+          node <<'JS'
+          const fs=require('fs'),{chromium}=require('playwright');
+          (async()=>{
+            const report=JSON.parse(fs.readFileSync('batch-result/report.json','utf8'));
+            const b=await chromium.launch({headless:true});
+            report.viewports=[];
+            for(const width of [390,1440]){
+              const p=await b.newPage({viewport:{width,height:width===390?844:900}});
+              const response=await p.goto(report.site_url,{waitUntil:'networkidle',timeout:60000});
+              if(response.status()!==200)throw Error('PUBLIC_SITE_HTTP');
+              await p.evaluate(()=>Promise.all([...document.images].map(i=>i.decode().catch(()=>{}))));
+              const result=await p.evaluate(()=>({width:innerWidth,overflow:document.documentElement.scrollWidth>innerWidth,broken_images:[...document.images].filter(i=>!i.complete||!i.naturalWidth).length,phones:[...document.querySelectorAll('a[href^="tel:"]')].map(a=>a.getAttribute('href'))}));
+              if(result.overflow||result.broken_images||!result.phones.length||result.phones.some(x=>x!=='tel:'+process.env.CLIENT_PHONE))throw Error('VISUAL_QA_FAILED_'+width);
+              await p.screenshot({path:'batch-result/screen-'+width+'.png',fullPage:false});
+              report.viewports.push(result);await p.close();
+            }
+            await b.close();
+            fs.writeFileSync('batch-result/report.json',JSON.stringify(report,null,2));
+            console.log('Mobile and desktop checks passed; messages not sent.');
+          })().catch(e=>{console.error(e.message);process.exit(1)});
+          JS
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ${{ matrix.slug }}-verified-materials
+          path: batch-result/
+          retention-days: 7
