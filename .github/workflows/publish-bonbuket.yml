@@ -46,7 +46,13 @@ jobs:
             const adminResponse=await fetch(admin,{signal:AbortSignal.timeout(30000)});
             const adminHtml=await adminResponse.text();
             if(!adminResponse.ok||!adminHtml.includes('id="save"'))throw Error('ADMIN_PAGE_FAILED');
-            const saved=await fetch(base+'/v1/site-brief?slug='+encodeURIComponent(slug),{headers:{'x-velora-site-token':token},signal:AbortSignal.timeout(30000)});
+            console.log('Public site: '+site.href);
+            let saved;
+            for(let attempt=0;attempt<6;attempt++){
+              saved=await fetch(base+'/v1/site-brief?slug='+encodeURIComponent(slug),{headers:{'x-velora-site-token':token},signal:AbortSignal.timeout(30000)});
+              if(saved.ok||saved.status!==404)break;
+              await new Promise(resolve=>setTimeout(resolve,10000));
+            }
             if(!saved.ok)throw Error('ADMIN_BRIEF_HTTP_'+saved.status);
             const stored=await saved.json();
             if(stored.brief?.business_name!==brief.business_name||stored.brief?.hero_image!==brief.hero_image)throw Error('ADMIN_BRIEF_MISMATCH');
