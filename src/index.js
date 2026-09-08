@@ -217,7 +217,7 @@ app.get('/v1/site-brief', async function (req, res) {
     let briefOrigin = `https://${slug}.pages.dev`;
     // BonBuket may have a Cloudflare-assigned domain different from its project name.
     // Keep the existing path for previously delivered client sites.
-    if (['bonbuket-sevastopol', 'ten-ballov-krasnodar'].includes(slug)) {
+    if (['bonbuket-sevastopol', 'ten-ballov-krasnodar', 'nova-rostov', 'belyi-krolik-krasnodar', 'sostoyanie-krasnodar'].includes(slug)) {
       const info = await axios.get(
         `https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/pages/projects/${slug}`,
         { timeout: 15000, headers: { Authorization: `Bearer ${CLOUDFLARE_API_TOKEN}` } }
@@ -2417,6 +2417,126 @@ SALES_DEMOS['ten-ballov-krasnodar'] = {
     "surface": "#FFFFFF",
     "text": "#271E25",
     "muted": "#74616E"
+  },
+  "footer_note": "Демо-концепт сайта от VELORA"
+};
+
+SALES_DEMOS["nova-rostov"] = {
+  "business_name": "Nova",
+  "eyebrow": "Салон красоты · Ростов-на-Дону",
+  "headline": "Время для себя",
+  "subheadline": "Маникюр, педикюр и уход за образом в центре Ростова-на-Дону.",
+  "business_description": "Маникюр, педикюр и уход за образом в центре Ростова-на-Дону.",
+  "phone": "+79635698703",
+  "telegram": "@novabeautyrnd",
+  "address": "Ростов-на-Дону, улица Максима Горького, 168",
+  "hero_image": "https://avatars.mds.yandex.net/get-altay/14396200/2a00000193430f1f50c271e7b59565f0c753/XXL",
+  "primary_action_label": "Обсудить запись",
+  "primary_action_url": "https://t.me/novabeautyrnd",
+  "secondary_action_label": "Позвонить",
+  "secondary_action_url": "tel:+79635698703",
+  "services_title": "Выберите своё направление",
+  "services": [
+    {
+      "title": "Маникюр",
+      "description": "Обсудите форму, покрытие и желаемый дизайн."
+    },
+    {
+      "title": "Педикюр",
+      "description": "Уточните доступные варианты ухода и удобное время."
+    },
+    {
+      "title": "Парикмахерские услуги",
+      "description": "Расскажите мастеру, какой образ хотите создать."
+    }
+  ],
+  "theme": {
+    "accent": "#A88870",
+    "accent2": "#A88870",
+    "background": "#F8F5F1",
+    "surface": "#FFFFFF",
+    "text": "#242220",
+    "muted": "#716A65"
+  },
+  "footer_note": "Демо-концепт сайта от VELORA"
+};
+
+SALES_DEMOS["belyi-krolik-krasnodar"] = {
+  "business_name": "Белый Кролик",
+  "eyebrow": "Салон красоты · Краснодар",
+  "headline": "Красота в деталях",
+  "subheadline": "Маникюр, педикюр и парикмахерские услуги — в салоне на улице Героя Яцкова.",
+  "business_description": "Маникюр, педикюр и парикмахерские услуги — в салоне на улице Героя Яцкова.",
+  "phone": "+79823632243",
+  "telegram": "",
+  "address": "Краснодар, улица им. Героя Яцкова И. В., 13",
+  "hero_image": "https://avatars.mds.yandex.net/get-maps-adv-crm/3927175/2a0000018be23a493574cf7dbfb092680d1e/landing_background_x3",
+  "primary_action_label": "Обсудить запись",
+  "primary_action_url": "tel:+79823632243",
+  "secondary_action_label": "WhatsApp",
+  "secondary_action_url": "https://wa.me/79823632243",
+  "services_title": "Выберите своё направление",
+  "services": [
+    {
+      "title": "Маникюр",
+      "description": "Форма и оформление ногтей под ваш стиль."
+    },
+    {
+      "title": "Педикюр",
+      "description": "Выберите удобное время для ухода."
+    },
+    {
+      "title": "Наращивание ногтей",
+      "description": "Обсудите с мастером длину, форму и дизайн."
+    }
+  ],
+  "theme": {
+    "accent": "#AA3348",
+    "accent2": "#AA3348",
+    "background": "#F8F5F1",
+    "surface": "#FFFFFF",
+    "text": "#242220",
+    "muted": "#716A65"
+  },
+  "footer_note": "Демо-концепт сайта от VELORA"
+};
+
+SALES_DEMOS["sostoyanie-krasnodar"] = {
+  "business_name": "Состояние",
+  "eyebrow": "Салон красоты · Краснодар",
+  "headline": "Ваш цвет. Ваше состояние.",
+  "subheadline": "Окрашивание и профессиональный уход за волосами. Начните с разговора о желаемом результате.",
+  "business_description": "Окрашивание и профессиональный уход за волосами. Начните с разговора о желаемом результате.",
+  "phone": "+79654574150",
+  "telegram": "@Sostoyanie_beautystudio",
+  "address": "Краснодар, улица имени Тургенева, 133",
+  "hero_image": "https://avatars.mds.yandex.net/get-maps-adv-crm/11387709/2a0000018e7fcbfcdc13bbfa677371ad6280/landing_background_x3",
+  "primary_action_label": "Обсудить запись",
+  "primary_action_url": "https://t.me/Sostoyanie_beautystudio",
+  "secondary_action_label": "Позвонить",
+  "secondary_action_url": "tel:+79654574150",
+  "services_title": "Выберите своё направление",
+  "services": [
+    {
+      "title": "Окрашивание",
+      "description": "Обсудите желаемый оттенок и историю предыдущих окрашиваний."
+    },
+    {
+      "title": "Уход за волосами",
+      "description": "Подберите программу ухода вместе со специалистом."
+    },
+    {
+      "title": "Диагностика кожи головы",
+      "description": "Уточните формат консультации и доступное время."
+    }
+  ],
+  "theme": {
+    "accent": "#A18A53",
+    "accent2": "#A18A53",
+    "background": "#F8F5F1",
+    "surface": "#FFFFFF",
+    "text": "#242220",
+    "muted": "#716A65"
   },
   "footer_note": "Демо-концепт сайта от VELORA"
 };
