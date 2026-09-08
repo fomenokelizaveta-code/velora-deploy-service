@@ -793,13 +793,7 @@ app.post('/v1/manager/materials', async function (req, res) {
       await new Promise(r=>setTimeout(r,800));
     });
 
-    let screenshotFiles;
-    if (['nova-rostov', 'belyi-krolik-krasnodar', 'sostoyanie-krasnodar'].includes(slug)) {
-      await page.screenshot({ path: path.join(tempDir, 'screenshot-1.png'), fullPage: false });
-      screenshotFiles = ['screenshot-1.png'];
-    } else {
-      screenshotFiles = await captureDistinctScreenshots(page,tempDir);
-    }
+    const screenshotFiles=await captureDistinctScreenshots(page,tempDir);
     const videoFile=await captureScrollVideo(page,tempDir);
 
     await context.close();
@@ -2586,7 +2580,13 @@ app.get('/demo/:slug/materials.json', async function (req, res) {
       await new Promise(r=>setTimeout(r,700));
     });
 
-    const screenshotFiles=await captureDistinctScreenshots(page,tempDir);
+    let screenshotFiles;
+    if (['nova-rostov', 'belyi-krolik-krasnodar', 'sostoyanie-krasnodar'].includes(slug)) {
+      await page.screenshot({ path: path.join(tempDir, 'screenshot-1.png'), fullPage: false });
+      screenshotFiles = ['screenshot-1.png'];
+    } else {
+      screenshotFiles = await captureDistinctScreenshots(page,tempDir);
+    }
     await context.close();
     await browser.close();
     browser=null;
