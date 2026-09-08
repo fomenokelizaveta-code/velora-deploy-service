@@ -2273,6 +2273,12 @@ SALES_DEMOS['zrit-rukami-crimea'] = {
 
 
 SALES_DEMOS['bonbuket-sevastopol'] = {
+  hero_image: 'https://avatars.mds.yandex.net/get-altay/5449087/2a0000017c89cc61e97ceba035bbc9b6dfea/XXL',
+  gallery_images: [
+    'https://avatars.mds.yandex.net/get-altay/5449087/2a0000017c89cc61e97ceba035bbc9b6dfea/XXL',
+    'https://avatars.mds.yandex.net/get-altay/7730113/2a0000018413e5605cab0e40e388ebdc6ae7/XXL',
+    'https://avatars.mds.yandex.net/get-altay/5477999/2a0000017c89cc6af4fbc1b1567d57f715b9/XXL'
+  ],
   business_name: 'BonBuket Севастополь',
   eyebrow: 'Мастерская авторских букетов · Севастополь',
   headline: 'Цветы, которые говорят за вас',
