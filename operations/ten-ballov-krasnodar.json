@@ -5,15 +5,20 @@
   "contact": "+79615938140",
   "delivery": {
     "photo": {
-      "delivery_id": 387156496,
-      "execution_id": "5685cb82e3f849b7bf684ff9f05de853",
-      "status": "Delivered"
+      "id": 387156496,
+      "status": "Delivered",
+      "execution_id": "5685cb82e3f849b7bf684ff9f05de853"
     },
-    "photo_attempt": "reserved",
-    "text_attempt": "reserved"
+    "text": {
+      "id": 387156816,
+      "status": "Delivered",
+      "execution_id": "c057cdac0ed44774b9c51fea64535a5b"
+    },
+    "verified_at": "2026-09-08T12:18:39Z"
   },
   "delivery_id": null,
   "existing_site": "https://laddy-boss.clients.site/",
+  "message_text": "Здравствуйте! Для студии «10 Баллов» подготовили вариант сайта в ваших фирменных оттенках — с описанием процедур для волос и прямой связью с мастером.\n\nПервый экран отправили фотографией. Посмотреть весь вариант:\nhttps://velora-deploy-service-production.up.railway.app/site/ten-ballov-krasnodar/\n\nКак вам такое оформление для вашей студии? Если интересно, расскажем подробнее. Если предложение неактуально — больше не будем беспокоить.\nVELORA",
   "need_hypothesis": "Present services with individual descriptions and prominent consultation contact; not a claim that the business has no website.",
   "niche": "Уход за волосами",
   "notes": [
@@ -34,12 +39,13 @@
     "workflow_run": 34224944504
   },
   "refused": false,
-  "sent": false,
+  "sent": true,
   "site_url": "https://velora-deploy-service-production.up.railway.app/site/ten-ballov-krasnodar/",
   "source_photo": "https://avatars.mds.yandex.net/get-maps-adv-crm/4771617/2a0000019bd6dad3225ed94e03769b5bc54b/landing_background_x3",
   "source_url": "https://laddy-boss.clients.site/",
-  "status": "SENDING_TEXT",
+  "status": "WAITING_REPLY",
   "telegram": "@Devo4kaDemon87",
   "verified_at": "2026-09-08",
-  "message_text": "Здравствуйте! Для студии «10 Баллов» подготовили вариант сайта в ваших фирменных оттенках — с описанием процедур для волос и прямой связью с мастером.\n\nПервый экран отправили фотографией. Посмотреть весь вариант:\nhttps://velora-deploy-service-production.up.railway.app/site/ten-ballov-krasnodar/\n\nКак вам такое оформление для вашей студии? Если интересно, расскажем подробнее. Если предложение неактуально — больше не будем беспокоить.\nVELORA"
+  "make_credits": 6,
+  "next_action": "Wait for actual reply; do not send another outreach."
 }
