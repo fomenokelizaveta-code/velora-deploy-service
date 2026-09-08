@@ -3,6 +3,15 @@
   "city": "Краснодар",
   "client_id": "ten-ballov-krasnodar",
   "contact": "+79615938140",
+  "delivery": {
+    "photo_attempt": "reserved",
+    "text_attempt": "not_started",
+    "photo": {
+      "execution_id": "5685cb82e3f849b7bf684ff9f05de853",
+      "delivery_id": 387156496,
+      "status": "Accepted"
+    }
+  },
   "delivery_id": null,
   "existing_site": "https://laddy-boss.clients.site/",
   "need_hypothesis": "Present services with individual descriptions and prominent consultation contact; not a claim that the business has no website.",
@@ -13,27 +22,23 @@
     "Kurort deprioritized: existing full website kurort-best.ru includes tour selection and contact forms. No message sent."
   ],
   "photo_count_to_send": 1,
+  "photo_url": "https://materials-ten-ballov-krasnodar-sales-bdd21c15.pages.dev/screenshot-1.png",
   "price_in_first_message": false,
+  "qa": {
+    "admin_brief": true,
+    "admin_page": true,
+    "admin_save_tested": false,
+    "desktop": "passed",
+    "mobile": "passed",
+    "real_android_tested": false,
+    "workflow_run": 34224944504
+  },
   "refused": false,
   "sent": false,
+  "site_url": "https://velora-deploy-service-production.up.railway.app/site/ten-ballov-krasnodar/",
   "source_photo": "https://avatars.mds.yandex.net/get-maps-adv-crm/4771617/2a0000019bd6dad3225ed94e03769b5bc54b/landing_background_x3",
   "source_url": "https://laddy-boss.clients.site/",
-  "status": "SENDING_PHOTO",
+  "status": "PHOTO_ACCEPTED",
   "telegram": "@Devo4kaDemon87",
-  "verified_at": "2026-09-08",
-  "site_url": "https://velora-deploy-service-production.up.railway.app/site/ten-ballov-krasnodar/",
-  "qa": {
-    "workflow_run": 34224944504,
-    "mobile": "passed",
-    "desktop": "passed",
-    "admin_page": true,
-    "admin_brief": true,
-    "admin_save_tested": false,
-    "real_android_tested": false
-  },
-  "photo_url": "https://materials-ten-ballov-krasnodar-sales-bdd21c15.pages.dev/screenshot-1.png",
-  "delivery": {
-    "photo_attempt": "reserved",
-    "text_attempt": "not_started"
-  }
+  "verified_at": "2026-09-08"
 }
