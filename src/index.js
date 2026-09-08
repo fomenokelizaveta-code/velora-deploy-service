@@ -217,7 +217,7 @@ app.get('/v1/site-brief', async function (req, res) {
     let briefOrigin = `https://${slug}.pages.dev`;
     // BonBuket may have a Cloudflare-assigned domain different from its project name.
     // Keep the existing path for previously delivered client sites.
-    if (slug === 'bonbuket-sevastopol') {
+    if (['bonbuket-sevastopol', 'ten-ballov-krasnodar'].includes(slug)) {
       const info = await axios.get(
         `https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/pages/projects/${slug}`,
         { timeout: 15000, headers: { Authorization: `Bearer ${CLOUDFLARE_API_TOKEN}` } }
@@ -1628,6 +1628,21 @@ async function generateStaticSite(outDir, brief, projectName) {
       .mobile-actions { left: 8px; right: 8px; padding: 6px; }
       .mobile-actions a { font-size: 12px; padding-left: 8px; padding-right: 8px; }
     }
+
+    ${projectName === 'ten-ballov-krasnodar' ? `
+    .hero{background:#21111e;}
+    .hero-media{object-position:left center;width:40%;}
+    .hero-overlay{background:linear-gradient(90deg,transparent 28%,#21111e 43%);}
+    .hero-content{width:50%;max-width:650px;margin-left:46%;margin-right:4%;}
+    .hero h1{font-size:clamp(38px,4.5vw,64px);}
+    @media(max-width:760px){
+      .hero-media{width:100%;object-position:left top;}
+      .hero-overlay{background:linear-gradient(0deg,#21111e 0%,rgba(33,17,30,.92) 28%,rgba(33,17,30,.1) 78%);}
+      .hero-content{width:calc(100% - 32px);margin:0 16px;padding-top:290px;padding-bottom:36px;}
+      .hero h1{font-size:36px;}
+      .hero-lead{font-size:16px;}
+    }
+    ` : ''}
   </style>
 </head>
 <body>
@@ -2359,6 +2374,51 @@ SALES_DEMOS['bem-massage-sevastopol'] = {
   ],
   theme: { accent:'#B88474', accent2:'#805B50', background:'#F7F1EC', surface:'#FFFFFF', text:'#2A211E', muted:'#756963' },
   footer_note: 'Демо-концепт сайта от VELORA AI'
+};
+
+SALES_DEMOS['ten-ballov-krasnodar'] = {
+  "business_name": "10 Баллов",
+  "eyebrow": "Студия волос · Краснодар",
+  "headline": "Уход, подобранный вашим волосам",
+  "business_description": "Кератиновое выпрямление, ботокс для волос, нанопластика и восстановление. Краснодар, Российская улица, 255/9.",
+  "subheadline": "Обсудите с мастером состояние волос и желаемый результат — и выберите подходящую процедуру.",
+  "phone": "+7 961 593-81-40",
+  "telegram": "@Devo4kaDemon87",
+  "address": "Краснодар, Российская улица, 255/9",
+  "hero_image": "https://avatars.mds.yandex.net/get-maps-adv-crm/4771617/2a0000019bd6dad3225ed94e03769b5bc54b/landing_background_x3",
+  "logo_url": "https://avatars.mds.yandex.net/get-maps-adv-crm/3736055/2a0000019bd6c38fafc206bb119abfeb8030/landing_logo_x3",
+  "primary_action_label": "Обсудить уход",
+  "primary_action_url": "https://t.me/Devo4kaDemon87",
+  "secondary_action_label": "Позвонить",
+  "secondary_action_url": "tel:+79615938140",
+  "services_title": "Выберите направление ухода",
+  "services": [
+    {
+      "title": "Кератиновое выпрямление",
+      "description": "Обсудите с мастером желаемую гладкость и особенности ваших волос."
+    },
+    {
+      "title": "Ботокс для волос",
+      "description": "Уходовая процедура для волос. Подходящий состав подбирается на консультации."
+    },
+    {
+      "title": "Нанопластика",
+      "description": "Уточните, подходит ли процедура для вашего типа и состояния волос."
+    },
+    {
+      "title": "Восстановление волос",
+      "description": "Подберите уход с учётом предыдущих окрашиваний и домашнего ухода."
+    }
+  ],
+  "theme": {
+    "accent": "#BC6B9A",
+    "accent2": "#865273",
+    "background": "#FAF6F8",
+    "surface": "#FFFFFF",
+    "text": "#271E25",
+    "muted": "#74616E"
+  },
+  "footer_note": "Демо-концепт сайта от VELORA"
 };
 
 const SALES_MATERIAL_CACHE = new Map();
