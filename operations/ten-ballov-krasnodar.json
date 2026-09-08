@@ -4,13 +4,13 @@
   "client_id": "ten-ballov-krasnodar",
   "contact": "+79615938140",
   "delivery": {
-    "photo_attempt": "reserved",
-    "text_attempt": "not_started",
     "photo": {
-      "execution_id": "5685cb82e3f849b7bf684ff9f05de853",
       "delivery_id": 387156496,
-      "status": "Accepted"
-    }
+      "execution_id": "5685cb82e3f849b7bf684ff9f05de853",
+      "status": "Delivered"
+    },
+    "photo_attempt": "reserved",
+    "text_attempt": "reserved"
   },
   "delivery_id": null,
   "existing_site": "https://laddy-boss.clients.site/",
@@ -38,7 +38,8 @@
   "site_url": "https://velora-deploy-service-production.up.railway.app/site/ten-ballov-krasnodar/",
   "source_photo": "https://avatars.mds.yandex.net/get-maps-adv-crm/4771617/2a0000019bd6dad3225ed94e03769b5bc54b/landing_background_x3",
   "source_url": "https://laddy-boss.clients.site/",
-  "status": "PHOTO_ACCEPTED",
+  "status": "SENDING_TEXT",
   "telegram": "@Devo4kaDemon87",
-  "verified_at": "2026-09-08"
+  "verified_at": "2026-09-08",
+  "message_text": "Здравствуйте! Для студии «10 Баллов» подготовили вариант сайта в ваших фирменных оттенках — с описанием процедур для волос и прямой связью с мастером.\n\nПервый экран отправили фотографией. Посмотреть весь вариант:\nhttps://velora-deploy-service-production.up.railway.app/site/ten-ballov-krasnodar/\n\nКак вам такое оформление для вашей студии? Если интересно, расскажем подробнее. Если предложение неактуально — больше не будем беспокоить.\nVELORA"
 }
