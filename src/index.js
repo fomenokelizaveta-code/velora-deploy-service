@@ -214,7 +214,19 @@ app.get('/v1/site-brief', async function (req, res) {
   const token = String(req.get('x-velora-site-token') || req.query.token || '');
   if (!isSiteAuthorized(slug, token)) return res.status(401).json({status:'ERROR', error:'UNAUTHORIZED'});
   try {
-    const url = `https://${slug}.pages.dev/velora-brief.json`;
+    let briefOrigin = `https://${slug}.pages.dev`;
+    // BonBuket may have a Cloudflare-assigned domain different from its project name.
+    // Keep the existing path for previously delivered client sites.
+    if (slug === 'bonbuket-sevastopol') {
+      const info = await axios.get(
+        `https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/pages/projects/${slug}`,
+        { timeout: 15000, headers: { Authorization: `Bearer ${CLOUDFLARE_API_TOKEN}` } }
+      );
+      const subdomain = String(info.data?.result?.subdomain || '');
+      if (!/^[a-z0-9-]+\.pages\.dev$/.test(subdomain)) throw new Error('INVALID_PROJECT_SUBDOMAIN');
+      briefOrigin = 'https://' + subdomain;
+    }
+    const url = briefOrigin + '/velora-brief.json';
     const response = await axios.get(url, { timeout: 15000 });
     return res.json({status:'OK', site_slug:slug, brief:response.data || {}});
   } catch (e) {
