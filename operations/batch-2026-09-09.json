@@ -11,32 +11,34 @@
       "interest": null,
       "message_text": "Здравствуйте! Для «Nova» подготовили вариант оформления сайта с отдельным описанием услуг и кнопками связи.\n\nПервый экран — на фотографии. Весь вариант:\nhttps://velora-deploy-service-production.up.railway.app/site/nova-rostov/\n\nХотели бы рассмотреть такое оформление для вашего салона? Если неактуально — больше не будем беспокоить.\nVELORA",
       "need_hypothesis": "Individual service presentation; existing website and booking acknowledged",
-      "next_action": "Publish, inspect actual screenshots and verify admin; resolve outreach recipient before sending",
+      "next_action": "Resolve linked Telegram recipient; no guessed alternate phone",
       "niche": "Салон красоты",
       "payment": null,
       "phone": "+79635698703",
       "photo_count_to_send": 1,
       "price_in_first_message": false,
       "qa": {
-        "public_site": true,
-        "mobile": true,
-        "desktop": true,
-        "visual_inspection": true,
-        "admin_page": true,
         "admin_brief": true,
+        "admin_page": true,
+        "admin_save_tested": false,
+        "desktop": true,
+        "mobile": true,
+        "public_site": true,
         "unauthorized_admin_rejected": true,
-        "admin_save_tested": false
+        "visual_inspection": true
       },
       "qa_workflow_run": 34279573373,
+      "reason_for_pause": "Exact linked Telegram profile cannot currently be read; verify user vs channel before send.",
       "reply": null,
+      "retry_after": null,
       "sent": false,
       "site_url": "https://velora-deploy-service-production.up.railway.app/site/nova-rostov/",
       "source_photo": "https://avatars.mds.yandex.net/get-altay/14396200/2a00000193430f1f50c271e7b59565f0c753/XXL",
       "source_url": "https://novabeauty.clients.site/",
-      "status": "WAITING_MATERIAL_VERIFICATION",
+      "status": "WAITING_CONTACT_VERIFICATION",
       "telegram": "@novabeautyrnd",
-      "reason_for_pause": "Screenshot endpoint returned READY with one URL, but actual image download not verified (403 for two checked URLs).",
-      "retry_after": null
+      "photo_url": "https://materials-nova-rostov-sales-c8d09666.pages.dev/screenshot-1.png",
+      "photo_verified": true
     },
     {
       "admin_save_tested": false,
@@ -48,32 +50,34 @@
       "interest": null,
       "message_text": "Здравствуйте! Для «Белый Кролик» подготовили вариант оформления сайта с отдельным описанием услуг и кнопками связи.\n\nПервый экран — на фотографии. Весь вариант:\nhttps://velora-deploy-service-production.up.railway.app/site/belyi-krolik-krasnodar/\n\nХотели бы рассмотреть такое оформление для вашего салона? Если неактуально — больше не будем беспокоить.\nVELORA",
       "need_hypothesis": "Individual service presentation; existing website and booking acknowledged",
-      "next_action": "Publish, inspect actual screenshots and verify admin; resolve outreach recipient before sending",
+      "next_action": "Sole campaign executor may reserve and send after fresh dedupe check",
       "niche": "Салон красоты",
       "payment": null,
       "phone": "+79823632243",
       "photo_count_to_send": 1,
       "price_in_first_message": false,
       "qa": {
-        "public_site": true,
-        "mobile": true,
-        "desktop": true,
-        "visual_inspection": true,
-        "admin_page": true,
         "admin_brief": true,
+        "admin_page": true,
+        "admin_save_tested": false,
+        "desktop": true,
+        "mobile": true,
+        "public_site": true,
         "unauthorized_admin_rejected": true,
-        "admin_save_tested": false
+        "visual_inspection": true
       },
       "qa_workflow_run": 34279573373,
+      "reason_for_pause": null,
       "reply": null,
+      "retry_after": null,
       "sent": false,
       "site_url": "https://velora-deploy-service-production.up.railway.app/site/belyi-krolik-krasnodar/",
       "source_photo": "https://avatars.mds.yandex.net/get-maps-adv-crm/3927175/2a0000018be23a493574cf7dbfb092680d1e/landing_background_x3",
       "source_url": "https://sk-belyi-krolik.clients.site/",
-      "status": "WAITING_MATERIAL_VERIFICATION",
+      "status": "MATERIALS_READY",
       "telegram": "",
-      "reason_for_pause": "Screenshot endpoint returned READY with one URL, but actual image download not verified (403 for two checked URLs).",
-      "retry_after": null
+      "photo_url": "https://materials-belyi-krolik-krasnodar-sales-890d219a.pages.dev/screenshot-1.png",
+      "photo_verified": true
     },
     {
       "admin_save_tested": false,
@@ -85,39 +89,41 @@
       "interest": null,
       "message_text": "Здравствуйте! Для «Состояние» подготовили вариант оформления сайта с отдельным описанием услуг и кнопками связи.\n\nПервый экран — на фотографии. Весь вариант:\nhttps://velora-deploy-service-production.up.railway.app/site/sostoyanie-krasnodar/\n\nХотели бы рассмотреть такое оформление для вашего салона? Если неактуально — больше не будем беспокоить.\nVELORA",
       "need_hypothesis": "Individual service presentation; existing website and booking acknowledged",
-      "next_action": "Publish, inspect actual screenshots and verify admin; resolve outreach recipient before sending",
+      "next_action": "Resolve linked Telegram recipient; no guessed alternate phone",
       "niche": "Салон красоты",
       "payment": null,
       "phone": "+79654574150",
       "photo_count_to_send": 1,
       "price_in_first_message": false,
       "qa": {
-        "public_site": true,
-        "mobile": true,
-        "desktop": true,
-        "visual_inspection": true,
-        "admin_page": true,
         "admin_brief": true,
+        "admin_page": true,
+        "admin_save_tested": false,
+        "desktop": true,
+        "mobile": true,
+        "public_site": true,
         "unauthorized_admin_rejected": true,
-        "admin_save_tested": false
+        "visual_inspection": true
       },
       "qa_workflow_run": 34279573373,
+      "reason_for_pause": "Exact linked Telegram profile cannot currently be read; verify user vs channel before send.",
       "reply": null,
+      "retry_after": null,
       "sent": false,
       "site_url": "https://velora-deploy-service-production.up.railway.app/site/sostoyanie-krasnodar/",
       "source_photo": "https://avatars.mds.yandex.net/get-maps-adv-crm/11387709/2a0000018e7fcbfcdc13bbfa677371ad6280/landing_background_x3",
       "source_url": "https://sostoyaniehair.clients.site/",
-      "status": "WAITING_MATERIAL_VERIFICATION",
+      "status": "WAITING_CONTACT_VERIFICATION",
       "telegram": "@Sostoyanie_beautystudio",
-      "reason_for_pause": "Screenshot endpoint returned READY with one URL, but actual image download not verified (403 for two checked URLs).",
-      "retry_after": null
+      "photo_url": "https://materials-sostoyanie-krasnodar-sales-bc254f1a.pages.dev/screenshot-1.png",
+      "photo_verified": true
     }
   ],
   "created_at": "2026-09-08T21:15:08.941Z",
   "delivery": null,
   "history_checked_through": "2026-09-08T21:15:08.942Z",
   "make_credits": 0,
-  "next_action": "Investigate photo URL HTTP 403; do not send until actual first-screen attachment can be fetched and inspected. Verify Nova/Sostoyanie Telegram recipients. Campaign executor handles outbound, manager does not.",
+  "next_action": "Campaign executor: verify unresolved Telegram recipient profiles for Nova/Sostoyanie, recheck history and acquire exclusive reservation before outbound. Manager does not send messages.",
   "notification_policy": "Only important aggregate updates; no per-client reports",
   "previous_delivered": 2,
   "protected_clients": [
@@ -127,6 +133,22 @@
   ],
   "quota_remaining": null,
   "sent": false,
-  "status": "WAITING_MATERIAL_VERIFICATION",
-  "updated_at": "2026-09-08T21:22:13.878Z"
+  "status": "MATERIALS_READY",
+  "updated_at": "2026-09-08T21:23:04.130Z",
+  "resolved_errors": [
+    {
+      "error": "Third publication DEPLOY_FAILED",
+      "result": "Targeted retry passed public site, admin and both viewports",
+      "run": 34279573373
+    },
+    {
+      "error": "Temporary image fetch 403/502",
+      "result": "All three actual PNGs downloaded successfully with HTTP client and visually inspected; no regeneration",
+      "cause": "Unknown; do not assert permanent outage"
+    },
+    {
+      "error": "Unnecessary multiple screenshot generation",
+      "result": "All three materials endpoints returned exactly one screenshot URL"
+    }
+  ]
 }
