@@ -15,25 +15,27 @@
     "https://t.me/s/BonBuketSevas?before=452"
   ],
   "delivery": {
-    "delivered": null,
+    "sent": true,
+    "delivered": true,
     "photo": {
       "delivery_id": 387151758,
-      "execution_id": "a0abc250ef0542f6acdaeff63c98c9f7",
-      "sent_at": "2026-09-08T12:06:21Z",
-      "status": "Delivered"
+      "status": "Delivered",
+      "execution_id": "a0abc250ef0542f6acdaeff63c98c9f7"
     },
-    "photo_attempt": "reserved",
-    "sent": false,
-    "text_attempt": "reserved"
+    "text": {
+      "delivery_id": 387152554,
+      "status": "Delivered",
+      "execution_id": "79a41be2b9ce4ea2b25e8b9333d39a51"
+    },
+    "verified_at": "2026-09-08T12:08:37Z"
   },
   "demo_url": "https://velora-deploy-service-production.up.railway.app/demo/bonbuket-sevastopol",
   "existing_site": "https://bonbuket92.clients.site/",
+  "message_text": "Здравствуйте! Посмотрели букеты BonBuket и подготовили для вашей мастерской вариант сайта с фотографиями ваших работ и прямой связью по телефону.\n\nПервый экран — на фото выше. Сайт можно посмотреть здесь:\nhttps://velora-deploy-service-production.up.railway.app/site/bonbuket-sevastopol/\n\nКак вам такой вариант оформления? Если интересно, расскажем подробнее. Если предложение неактуально — больше не будем беспокоить.\nVELORA",
   "next_actions": [
-    "Publish BonBuket through authenticated /v1/deploy using its current brief.",
-    "Validate admin load/save and public site update.",
-    "Validate desktop layout before sending.",
-    "Check campaign ledger and message history for duplicates before sending.",
-    "Send one photo and a personal message without price only after QA and admin checks pass."
+    "Wait for actual inbound; do not repeat outreach.",
+    "Route payment readiness to owner.",
+    "Incoming automated reply integration remains unconfigured."
   ],
   "protected_clients": [
     "АМАТЭ",
@@ -67,7 +69,7 @@
   "screenshot_url": "https://materials-bonbuket-sevastopol-sales-cbfc61a9.pages.dev/screenshot-1.png",
   "send_photo_count": 1,
   "site_url": "https://velora-deploy-service-production.up.railway.app/site/bonbuket-sevastopol/",
-  "status": "SENDING_TEXT",
+  "status": "WAITING_REPLY",
   "verified_business_contact": "+79783324344",
-  "message_text": "Здравствуйте! Посмотрели букеты BonBuket и подготовили для вашей мастерской вариант сайта с фотографиями ваших работ и прямой связью по телефону.\n\nПервый экран — на фото выше. Сайт можно посмотреть здесь:\nhttps://velora-deploy-service-production.up.railway.app/site/bonbuket-sevastopol/\n\nКак вам такой вариант оформления? Если интересно, расскажем подробнее. Если предложение неактуально — больше не будем беспокоить.\nVELORA"
+  "make_credits": 6
 }
