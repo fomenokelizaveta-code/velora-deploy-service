@@ -3,6 +3,12 @@ name: Live Velora smoke test
 on:
   push:
     branches: [main]
+    paths:
+      - 'src/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'Dockerfile'
+      - '.github/workflows/live-smoke-test.yml'
   workflow_dispatch:
 
 permissions:
