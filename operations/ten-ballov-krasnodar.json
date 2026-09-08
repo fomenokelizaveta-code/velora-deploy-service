@@ -1,24 +1,39 @@
 {
-  "client_id": "ten-ballov-krasnodar",
   "business_name": "Студия красоты «10 Баллов»",
   "city": "Краснодар",
-  "niche": "Уход за волосами",
+  "client_id": "ten-ballov-krasnodar",
   "contact": "+79615938140",
-  "telegram": "@Devo4kaDemon87",
-  "source_url": "https://laddy-boss.clients.site/",
-  "existing_site": "https://laddy-boss.clients.site/",
-  "verified_at": "2026-09-08",
-  "need_hypothesis": "Present services with individual descriptions and prominent consultation contact; not a claim that the business has no website.",
-  "status": "QA",
-  "sent": false,
   "delivery_id": null,
-  "refused": false,
-  "photo_count_to_send": 1,
-  "price_in_first_message": false,
-  "source_photo": "https://avatars.mds.yandex.net/get-maps-adv-crm/4771617/2a0000019bd6dad3225ed94e03769b5bc54b/landing_background_x3",
+  "existing_site": "https://laddy-boss.clients.site/",
+  "need_hypothesis": "Present services with individual descriptions and prominent consultation contact; not a claim that the business has no website.",
+  "niche": "Уход за волосами",
   "notes": [
     "Do not copy old campaign promotions or customer reviews.",
     "Owner's portrait displayed from business page; not independent evidence of claims printed on banner.",
     "Kurort deprioritized: existing full website kurort-best.ru includes tour selection and contact forms. No message sent."
-  ]
+  ],
+  "photo_count_to_send": 1,
+  "price_in_first_message": false,
+  "refused": false,
+  "sent": false,
+  "source_photo": "https://avatars.mds.yandex.net/get-maps-adv-crm/4771617/2a0000019bd6dad3225ed94e03769b5bc54b/landing_background_x3",
+  "source_url": "https://laddy-boss.clients.site/",
+  "status": "SENDING_PHOTO",
+  "telegram": "@Devo4kaDemon87",
+  "verified_at": "2026-09-08",
+  "site_url": "https://velora-deploy-service-production.up.railway.app/site/ten-ballov-krasnodar/",
+  "qa": {
+    "workflow_run": 34224944504,
+    "mobile": "passed",
+    "desktop": "passed",
+    "admin_page": true,
+    "admin_brief": true,
+    "admin_save_tested": false,
+    "real_android_tested": false
+  },
+  "photo_url": "https://materials-ten-ballov-krasnodar-sales-bdd21c15.pages.dev/screenshot-1.png",
+  "delivery": {
+    "photo_attempt": "reserved",
+    "text_attempt": "not_started"
+  }
 }
