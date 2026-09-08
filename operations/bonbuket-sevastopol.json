@@ -1,10 +1,5 @@
 {
-  "blocker": {
-    "code": "MISSING_DEPLOY_CREDENTIAL_IN_GITHUB",
-    "evidence": "GitHub Actions run 34195232787: Create test site and verify Railway public URL skipped; workflow conditions this step on secrets.VELORA_API_KEY being nonempty.",
-    "required_action": "Configure the existing valid VELORA_API_KEY through the authorized GitHub secret settings, or reconnect an authenticated deploy integration. Do not change the server key or weaken authentication.",
-    "retry_after": "after authenticated deploy access restored"
-  },
+  "blocker": null,
   "business_name": "BonBuket Севастополь",
   "changes": {
     "customer_facing_copy": true,
@@ -20,9 +15,10 @@
     "https://t.me/s/BonBuketSevas?before=452"
   ],
   "delivery": {
-    "delivered": null,
-    "delivery_id": null,
-    "sent": false
+    "sent": false,
+    "photo_attempt": "reserved",
+    "text_attempt": "not_started",
+    "delivered": null
   },
   "demo_url": "https://velora-deploy-service-production.up.railway.app/demo/bonbuket-sevastopol",
   "existing_site": "https://bonbuket92.clients.site/",
@@ -39,10 +35,15 @@
     "LE Di Clinic"
   ],
   "qa": {
-    "admin": "not_provisioned",
-    "desktop_visual": "pending",
-    "mobile_visual": "passed: inspected actual server-generated 390x693 first-screen screenshot; text and phone CTA visible",
-    "real_android": "not_tested"
+    "mobile_visual": "passed",
+    "desktop_visual": "passed",
+    "broken_images": 0,
+    "horizontal_overflow": false,
+    "admin_page": "verified",
+    "admin_brief": "verified",
+    "admin_save": "not_tested",
+    "real_android": "not_tested",
+    "workflow_run": 34196780157
   },
   "reply_policy": {
     "enabled": false,
@@ -57,8 +58,9 @@
       "Protected three remain excluded under user's existing instruction."
     ]
   },
-  "status": "BLOCKED_ADMIN_PROVISIONING",
+  "status": "SENDING_PHOTO",
   "verified_business_contact": "+79783324344",
   "screenshot_url": "https://materials-bonbuket-sevastopol-sales-cbfc61a9.pages.dev/screenshot-1.png",
-  "send_photo_count": 1
+  "send_photo_count": 1,
+  "site_url": "https://velora-deploy-service-production.up.railway.app/site/bonbuket-sevastopol/"
 }
