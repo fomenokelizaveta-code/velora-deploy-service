@@ -7,7 +7,13 @@
       "city": "Ростов-на-Дону",
       "client_id": "nova-rostov",
       "contact_verification": "Official business page links @novabeautyrnd; Telegram public page identifies Салон красоты NOVA and Send Message (individual business contact), checked 2026-09-09T22:14Z",
-      "delivery": null,
+      "delivery": {
+        "photo": {
+          "id": 387670336,
+          "status": "Accepted",
+          "execution_id": "feede119561f4c00b4342873bef1d93b"
+        }
+      },
       "interest": null,
       "message_text": "Здравствуйте! Для «Nova» подготовили вариант оформления сайта с отдельным описанием услуг и кнопками связи.\n\nПервый экран — на фотографии. Весь вариант:\nhttps://velora-deploy-service-production.up.railway.app/site/nova-rostov/\n\nХотели бы рассмотреть такое оформление для вашего салона? Если неактуально — больше не будем беспокоить.\nVELORA",
       "need_hypothesis": "Individual service presentation; existing website and booking acknowledged",
@@ -32,15 +38,16 @@
       "qa_workflow_run": 34279573373,
       "reason_for_pause": "Exact linked Telegram profile cannot currently be read; verify user vs channel before send.",
       "reply": null,
+      "reservation_owner": "direct-campaign-nova",
+      "reserved_at": "2026-09-09T22:14:15.403Z",
       "retry_after": null,
       "sent": false,
       "site_url": "https://velora-deploy-service-production.up.railway.app/site/nova-rostov/",
       "source_photo": "https://avatars.mds.yandex.net/get-altay/14396200/2a00000193430f1f50c271e7b59565f0c753/XXL",
       "source_url": "https://novabeauty.clients.site/",
-      "status": "SENDING_PHOTO",
+      "status": "WAITING_PHOTO_DELIVERY",
       "telegram": "@novabeautyrnd",
-      "reserved_at": "2026-09-09T22:14:15.403Z",
-      "reservation_owner": "direct-campaign-nova"
+      "make_credits": 3
     },
     {
       "admin_save_tested": false,
