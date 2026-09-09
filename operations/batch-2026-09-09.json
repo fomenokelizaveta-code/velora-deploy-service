@@ -13,10 +13,15 @@
           "id": 387670336,
           "status": "Delivered",
           "verified_at": "2026-09-09T22:15:31.794Z"
+        },
+        "text": {
+          "id": 387670420,
+          "status": "Accepted",
+          "execution_id": "0e9b4257816b4bea98c2e197be19c6a4"
         }
       },
       "interest": null,
-      "make_credits": 4,
+      "make_credits": 5,
       "message_text": "Здравствуйте! Для салона Nova в Ростове подготовили вариант сайта с вашими фотографиями: направления услуг вынесены в отдельные блоки, а связаться с салоном можно прямо со страницы.\n\nПервый экран отправили фотографией. Посмотреть вариант:\nhttps://velora-deploy-service-production.up.railway.app/site/nova-rostov/\n\nВам было бы интересно такое оформление? Если сейчас неактуально — больше не будем беспокоить.\nVELORA",
       "need_hypothesis": "Individual service presentation; existing website and booking acknowledged",
       "next_action": "Resolve linked Telegram recipient; no guessed alternate phone",
@@ -47,7 +52,7 @@
       "site_url": "https://velora-deploy-service-production.up.railway.app/site/nova-rostov/",
       "source_photo": "https://avatars.mds.yandex.net/get-altay/14396200/2a00000193430f1f50c271e7b59565f0c753/XXL",
       "source_url": "https://novabeauty.clients.site/",
-      "status": "SENDING_TEXT",
+      "status": "WAITING_TEXT_DELIVERY",
       "telegram": "@novabeautyrnd"
     },
     {
