@@ -6,7 +6,7 @@
       "business_name": "Nova",
       "city": "Ростов-на-Дону",
       "client_id": "nova-rostov",
-      "contact_verification": "Business page verified; Telegram profile direct lookup unavailable",
+      "contact_verification": "Official business page links @novabeautyrnd; Telegram public page identifies Салон красоты NOVA and Send Message (individual business contact), checked 2026-09-09T22:14Z",
       "delivery": null,
       "interest": null,
       "message_text": "Здравствуйте! Для «Nova» подготовили вариант оформления сайта с отдельным описанием услуг и кнопками связи.\n\nПервый экран — на фотографии. Весь вариант:\nhttps://velora-deploy-service-production.up.railway.app/site/nova-rostov/\n\nХотели бы рассмотреть такое оформление для вашего салона? Если неактуально — больше не будем беспокоить.\nVELORA",
@@ -37,8 +37,10 @@
       "site_url": "https://velora-deploy-service-production.up.railway.app/site/nova-rostov/",
       "source_photo": "https://avatars.mds.yandex.net/get-altay/14396200/2a00000193430f1f50c271e7b59565f0c753/XXL",
       "source_url": "https://novabeauty.clients.site/",
-      "status": "WAITING_CONTACT_VERIFICATION",
-      "telegram": "@novabeautyrnd"
+      "status": "SENDING_PHOTO",
+      "telegram": "@novabeautyrnd",
+      "reserved_at": "2026-09-09T22:14:15.403Z",
+      "reservation_owner": "direct-campaign-nova"
     },
     {
       "admin_save_tested": false,
@@ -86,6 +88,7 @@
       "reason_for_pause": null,
       "reply": null,
       "reservation_owner": "direct-user-campaign-2026-09-09",
+      "reservation_released_at": "2026-09-09T21:47:44.679Z",
       "reserved_at": "2026-09-09T21:45:00.317Z",
       "retry_after": null,
       "sent": true,
@@ -93,20 +96,19 @@
       "source_photo": "https://avatars.mds.yandex.net/get-maps-adv-crm/3927175/2a0000018be23a493574cf7dbfb092680d1e/landing_background_x3",
       "source_url": "https://sk-belyi-krolik.clients.site/",
       "status": "WAITING_REPLY",
-      "telegram": "",
-      "reservation_released_at": "2026-09-09T21:47:44.679Z"
+      "telegram": ""
     },
     {
       "admin_save_tested": false,
       "business_name": "Состояние",
       "city": "Краснодар",
       "client_id": "sostoyanie-krasnodar",
-      "contact_verification": "Business page verified; Telegram profile direct lookup unavailable",
+      "contact_verification": "Channel verified; direct phone/recipient unresolved",
       "delivery": null,
       "interest": null,
       "message_text": "Здравствуйте! Для «Состояние» подготовили вариант оформления сайта с отдельным описанием услуг и кнопками связи.\n\nПервый экран — на фотографии. Весь вариант:\nhttps://velora-deploy-service-production.up.railway.app/site/sostoyanie-krasnodar/\n\nХотели бы рассмотреть такое оформление для вашего салона? Если неактуально — больше не будем беспокоить.\nVELORA",
       "need_hypothesis": "Individual service presentation; existing website and booking acknowledged",
-      "next_action": "Resolve linked Telegram recipient; no guessed alternate phone",
+      "next_action": "Find explicitly published direct business contact; do not send to channel.",
       "niche": "Салон красоты",
       "payment": null,
       "phone": "+79654574150",
@@ -125,17 +127,18 @@
         "visual_inspection": true
       },
       "qa_workflow_run": 34279573373,
-      "reason_for_pause": "Exact linked Telegram profile cannot currently be read; verify user vs channel before send.",
+      "reason_for_pause": "Linked Telegram identity is a broadcast channel (206 subscribers, View in Telegram), not a direct recipient. Do not send to channel.",
       "reply": null,
       "retry_after": null,
       "sent": false,
       "site_url": "https://velora-deploy-service-production.up.railway.app/site/sostoyanie-krasnodar/",
       "source_photo": "https://avatars.mds.yandex.net/get-maps-adv-crm/11387709/2a0000018e7fcbfcdc13bbfa677371ad6280/landing_background_x3",
       "source_url": "https://sostoyaniehair.clients.site/",
-      "status": "WAITING_CONTACT_VERIFICATION",
+      "status": "WAITING_DIRECT_CONTACT",
       "telegram": "@Sostoyanie_beautystudio"
     }
   ],
+  "confirmed_delivered_campaign_total": 3,
   "created_at": "2026-09-08T21:15:08.941Z",
   "delivery": null,
   "history_checked_through": "2026-09-08T21:15:08.942Z",
@@ -167,6 +170,5 @@
   ],
   "sent": false,
   "status": "PARTIALLY_SENT",
-  "updated_at": "2026-09-09T21:47:44.679Z",
-  "confirmed_delivered_campaign_total": 3
+  "updated_at": "2026-09-09T21:47:44.679Z"
 }
