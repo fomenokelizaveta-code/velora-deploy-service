@@ -9,13 +9,15 @@
       "contact_verification": "Official business page links @novabeautyrnd; Telegram public page identifies Салон красоты NOVA and Send Message (individual business contact), checked 2026-09-09T22:14Z",
       "delivery": {
         "photo": {
+          "execution_id": "feede119561f4c00b4342873bef1d93b",
           "id": 387670336,
-          "status": "Accepted",
-          "execution_id": "feede119561f4c00b4342873bef1d93b"
+          "status": "Delivered",
+          "verified_at": "2026-09-09T22:15:31.794Z"
         }
       },
       "interest": null,
-      "message_text": "Здравствуйте! Для «Nova» подготовили вариант оформления сайта с отдельным описанием услуг и кнопками связи.\n\nПервый экран — на фотографии. Весь вариант:\nhttps://velora-deploy-service-production.up.railway.app/site/nova-rostov/\n\nХотели бы рассмотреть такое оформление для вашего салона? Если неактуально — больше не будем беспокоить.\nVELORA",
+      "make_credits": 4,
+      "message_text": "Здравствуйте! Для салона Nova в Ростове подготовили вариант сайта с вашими фотографиями: направления услуг вынесены в отдельные блоки, а связаться с салоном можно прямо со страницы.\n\nПервый экран отправили фотографией. Посмотреть вариант:\nhttps://velora-deploy-service-production.up.railway.app/site/nova-rostov/\n\nВам было бы интересно такое оформление? Если сейчас неактуально — больше не будем беспокоить.\nVELORA",
       "need_hypothesis": "Individual service presentation; existing website and booking acknowledged",
       "next_action": "Resolve linked Telegram recipient; no guessed alternate phone",
       "niche": "Салон красоты",
@@ -45,9 +47,8 @@
       "site_url": "https://velora-deploy-service-production.up.railway.app/site/nova-rostov/",
       "source_photo": "https://avatars.mds.yandex.net/get-altay/14396200/2a00000193430f1f50c271e7b59565f0c753/XXL",
       "source_url": "https://novabeauty.clients.site/",
-      "status": "WAITING_PHOTO_DELIVERY",
-      "telegram": "@novabeautyrnd",
-      "make_credits": 3
+      "status": "SENDING_TEXT",
+      "telegram": "@novabeautyrnd"
     },
     {
       "admin_save_tested": false,
