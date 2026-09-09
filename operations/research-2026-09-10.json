@@ -1,0 +1,312 @@
+{
+  "checked_at": "2026-09-09T22:13:26.159Z",
+  "status": "RESEARCHED_NOT_READY_TO_SEND",
+  "campaign_cap": 30,
+  "already_delivered": 3,
+  "notes": [
+    "12 additional business pages returned successfully. These are candidates, not buyers or ready recipients.",
+    "Existing clients.site pages are websites; assess specific improvement value before building.",
+    "City, recent activity, suitability and recipient type need verification before outbound. No guesses or duplicate messages."
+  ],
+  "rows": [
+    {
+      "source_url": "https://telegram.me/novabeautyrnd",
+      "http_ok": true,
+      "title": [
+        "Telegram: Contact @novabeautyrnd"
+      ],
+      "contacts": [],
+      "phones": [],
+      "bytes": 11052,
+      "sent": false,
+      "delivery": null,
+      "site_qa": null,
+      "next_action": "Inspect profile type and match official business link"
+    },
+    {
+      "source_url": "https://telegram.me/Sostoyanie_beautystudio",
+      "http_ok": true,
+      "title": [
+        "Telegram: View @Sostoyanie_beautystudio"
+      ],
+      "contacts": [],
+      "phones": [],
+      "bytes": 12604,
+      "sent": false,
+      "delivery": null,
+      "site_qa": null,
+      "next_action": "Inspect profile type and match official business link"
+    },
+    {
+      "source_url": "https://ange-studio-simf.clients.site/",
+      "http_ok": true,
+      "title": [
+        "Студия красоты Ангелины Т. (studio_by_ange)"
+      ],
+      "contacts": [
+        "https://telegram.me/studio_by_Angel",
+        "https://telegram.me/79789491100studio_by_Angel",
+        "https://wa.me/79789491100"
+      ],
+      "phones": [
+        "+7 (978) 949-11-00  ",
+        "+7 (978) 949-",
+        "+7 (978) 949-11-00 - ",
+        "+7 (978) 949-11-00",
+        "+79789491100"
+      ],
+      "bytes": 207567,
+      "sent": false,
+      "delivery": null,
+      "site_qa": null,
+      "next_action": "Assess business need and activity; prepare site only if qualified"
+    },
+    {
+      "source_url": "https://muza-nejl.clients.site/",
+      "http_ok": true,
+      "title": [
+        "Студия маникюра MUZANAIL | Севастополь"
+      ],
+      "contacts": [
+        "https://telegram.me/muza_nail_studio",
+        "https://wa.me/79782013157"
+      ],
+      "phones": [
+        "+7 (978) 201-31-57  ",
+        "+7 (978) 201-",
+        "+7 (978) 201-31-57",
+        "+79782013157",
+        "+7 (978) 201-31-57 - "
+      ],
+      "bytes": 182580,
+      "sent": false,
+      "delivery": null,
+      "site_qa": null,
+      "next_action": "Assess business need and activity; prepare site only if qualified"
+    },
+    {
+      "source_url": "https://white-shark-club.clients.site/",
+      "http_ok": true,
+      "title": [
+        "White Shark Club"
+      ],
+      "contacts": [
+        "https://telegram.me/whitesharksalon",
+        "https://wa.me/79789210311"
+      ],
+      "phones": [
+        "+7 (978) 921-03-11  ",
+        "+7 (978) 921-",
+        "+7 (978) 921-03-11",
+        "+79789210311",
+        "+7 (978) 921-03-11 - "
+      ],
+      "bytes": 193517,
+      "sent": false,
+      "delivery": null,
+      "site_qa": null,
+      "next_action": "Assess business need and activity; prepare site only if qualified"
+    },
+    {
+      "source_url": "https://brusnika-sevastopol.clients.site/",
+      "http_ok": true,
+      "title": [
+        "БРУСНИКА"
+      ],
+      "contacts": [
+        "https://telegram.me/+79782779475",
+        "https://telegram.me/brusnika_beauty5"
+      ],
+      "phones": [
+        "+7 (978) 277-94-75  ",
+        "+7 (978) 277-",
+        "+79782779475",
+        "+7 (978) 277-94-75",
+        "+7 (978) 277-94-75 - "
+      ],
+      "bytes": 196538,
+      "sent": false,
+      "delivery": null,
+      "site_qa": null,
+      "next_action": "Assess business need and activity; prepare site only if qualified"
+    },
+    {
+      "source_url": "https://gl-beauty-studio.clients.site/",
+      "http_ok": true,
+      "title": [
+        "GL салон красоты"
+      ],
+      "contacts": [
+        "https://telegram.me/+79788978328",
+        "https://wa.me/79788978328"
+      ],
+      "phones": [
+        "+7 (978) 897-83-28  ",
+        "+7 (978) 897-",
+        "+79788978328",
+        "+7 (978) 897-83-28",
+        "+7 (978) 897-83-28 - "
+      ],
+      "bytes": 194685,
+      "sent": false,
+      "delivery": null,
+      "site_qa": null,
+      "next_action": "Assess business need and activity; prepare site only if qualified"
+    },
+    {
+      "source_url": "https://studija-olgi-k.clients.site/",
+      "http_ok": true,
+      "title": [
+        "Студия Ольги К."
+      ],
+      "contacts": [
+        "https://telegram.me/+OVfBqfGp0yFhZjY6",
+        "https://wa.me/79783031023"
+      ],
+      "phones": [
+        "+7 (978) 303-10-23  ",
+        "+7 (978) 303-",
+        "+7 (978) 303-10-23",
+        "+79783031023",
+        "+7 (978) 303-10-23 - "
+      ],
+      "bytes": 185346,
+      "sent": false,
+      "delivery": null,
+      "site_qa": null,
+      "next_action": "Assess business need and activity; prepare site only if qualified"
+    },
+    {
+      "source_url": "https://pachuli-studio.clients.site/",
+      "http_ok": true,
+      "title": [
+        "PACHULI. Ногти. Ресницы. Брови."
+      ],
+      "contacts": [
+        "https://telegram.me/patchouliteam"
+      ],
+      "phones": [
+        "+7 (978) 111-63-38  ",
+        "+7 (978) 111-",
+        "+7 (978) 111-63-38",
+        "+79781116338",
+        "+7 (978) 111-63-38 - "
+      ],
+      "bytes": 154761,
+      "sent": false,
+      "delivery": null,
+      "site_qa": null,
+      "next_action": "Assess business need and activity; prepare site only if qualified"
+    },
+    {
+      "source_url": "https://studija-natali-hodenko.clients.site/",
+      "http_ok": true,
+      "title": [
+        "Студия Натальи Ходенко"
+      ],
+      "contacts": [
+        "https://telegram.me/Rogdestvenska",
+        "https://wa.me/79787477730"
+      ],
+      "phones": [
+        "+7 (978) 747-77-30  ",
+        "+7 (978) 747-",
+        "+7 (978) 747-77-30",
+        "+79787477730",
+        "+7 (978) 747-77-30 - "
+      ],
+      "bytes": 198675,
+      "sent": false,
+      "delivery": null,
+      "site_qa": null,
+      "next_action": "Assess business need and activity; prepare site only if qualified"
+    },
+    {
+      "source_url": "https://mk-studio.clients.site/",
+      "http_ok": true,
+      "title": [
+        "Mk Студия"
+      ],
+      "contacts": [
+        "https://telegram.me/79787369381"
+      ],
+      "phones": [
+        "+7 (978) 736-93-81  ",
+        "+7 (978) 736-",
+        "+7 (978) 736-93-81",
+        "+79787369381",
+        "+7 (978) 736-93-81 - "
+      ],
+      "bytes": 222753,
+      "sent": false,
+      "delivery": null,
+      "site_qa": null,
+      "next_action": "Assess business need and activity; prepare site only if qualified"
+    },
+    {
+      "source_url": "https://stcolorsimf.clients.site/",
+      "http_ok": true,
+      "title": [
+        "Студия колористики"
+      ],
+      "contacts": [
+        "https://telegram.me/+79787431947",
+        "https://wa.me/+79787431947"
+      ],
+      "phones": [
+        "+79787431947"
+      ],
+      "bytes": 171102,
+      "sent": false,
+      "delivery": null,
+      "site_qa": null,
+      "next_action": "Assess business need and activity; prepare site only if qualified"
+    },
+    {
+      "source_url": "https://viola-beauty.clients.site/",
+      "http_ok": true,
+      "title": [
+        "Viola Beauty студия красоты"
+      ],
+      "contacts": [
+        "https://telegram.me/+79782692989",
+        "https://wa.me/79782692989"
+      ],
+      "phones": [
+        "+7 (978) 269-29-89  ",
+        "+7 (978) 269-",
+        "+7 (978) 269-29-89 - ",
+        "+79782692989",
+        "+7 (978) 269-29-89"
+      ],
+      "bytes": 199083,
+      "sent": false,
+      "delivery": null,
+      "site_qa": null,
+      "next_action": "Assess business need and activity; prepare site only if qualified"
+    },
+    {
+      "source_url": "https://beautystories.clients.site/",
+      "http_ok": true,
+      "title": [
+        "Истории-Красоты"
+      ],
+      "contacts": [
+        "https://telegram.me/beautystories03",
+        "https://telegram.me/beautystoriessimf"
+      ],
+      "phones": [
+        "+7 (978) 696-03-03  ",
+        "+7 (978) 696-",
+        "+7 (978) 696-03-03",
+        "+79786960303",
+        "+7 (978) 696-03-03 - "
+      ],
+      "bytes": 199210,
+      "sent": false,
+      "delivery": null,
+      "site_qa": null,
+      "next_action": "Assess business need and activity; prepare site only if qualified"
+    }
+  ]
+}
