@@ -1,0 +1,43 @@
+{
+  "checked_at": "2026-09-09T05:22:55.639Z",
+  "role": "manager",
+  "checkpoint_commit": "1ea8ca6a6aba28853cbbbd8938182b80c106a374",
+  "changes_since_checkpoint": false,
+  "outbound_history": {
+    "from": "2026-09-08T21:22:00Z",
+    "scenario_7290319_new_runs": 0,
+    "scenario_7290522_new_runs": 0
+  },
+  "campaign": {
+    "limit": 30,
+    "previously_confirmed_delivered": 2,
+    "new_deliveries_observed": 0,
+    "replies": null,
+    "interest": null,
+    "payments": null
+  },
+  "queue": {
+    "ready": 1,
+    "waiting_contact_verification": 2,
+    "sites_regenerated": 0,
+    "messages_sent": 0
+  },
+  "automation": {
+    "campaign_id": "6a9f46b6a2e48191804430cacd0f4945",
+    "enabled": false,
+    "last_run_time": "2026-09-08T00:18:51.271651+00:00",
+    "next_run_time": null,
+    "active_executor_state": "unknown; peek does not expose active process state",
+    "rescheduled": false,
+    "reason": "No reliable proof of no active executor; do not launch a competing campaign"
+  },
+  "quotas": {
+    "make_remaining": null,
+    "github_remaining": null,
+    "platform_remaining": null,
+    "new_scenario_runs": 0
+  },
+  "next_priority": "Existing campaign executor must resolve remaining two linked Telegram identities and use saved materials, with exclusive reservation and fresh dedupe. Manager must not send.",
+  "actions": "Read-only delta check plus this separate checkpoint. No source, shared queue, scenario or schedule changes.",
+  "notification": "No substantive new result; suppress routine report."
+}
