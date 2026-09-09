@@ -15,16 +15,17 @@
           "verified_at": "2026-09-09T22:15:31.794Z"
         },
         "text": {
+          "execution_id": "0e9b4257816b4bea98c2e197be19c6a4",
           "id": 387670420,
-          "status": "Accepted",
-          "execution_id": "0e9b4257816b4bea98c2e197be19c6a4"
+          "status": "Delivered",
+          "verified_at": "2026-09-09T22:17:22.038Z"
         }
       },
       "interest": null,
-      "make_credits": 5,
+      "make_credits": 6,
       "message_text": "Здравствуйте! Для салона Nova в Ростове подготовили вариант сайта с вашими фотографиями: направления услуг вынесены в отдельные блоки, а связаться с салоном можно прямо со страницы.\n\nПервый экран отправили фотографией. Посмотреть вариант:\nhttps://velora-deploy-service-production.up.railway.app/site/nova-rostov/\n\nВам было бы интересно такое оформление? Если сейчас неактуально — больше не будем беспокоить.\nVELORA",
       "need_hypothesis": "Individual service presentation; existing website and booking acknowledged",
-      "next_action": "Resolve linked Telegram recipient; no guessed alternate phone",
+      "next_action": "Wait for real reply; no repeat outreach.",
       "niche": "Салон красоты",
       "payment": null,
       "phone": "+79635698703",
@@ -43,17 +44,18 @@
         "visual_inspection": true
       },
       "qa_workflow_run": 34279573373,
-      "reason_for_pause": "Exact linked Telegram profile cannot currently be read; verify user vs channel before send.",
+      "reason_for_pause": null,
       "reply": null,
       "reservation_owner": "direct-campaign-nova",
       "reserved_at": "2026-09-09T22:14:15.403Z",
       "retry_after": null,
-      "sent": false,
+      "sent": true,
       "site_url": "https://velora-deploy-service-production.up.railway.app/site/nova-rostov/",
       "source_photo": "https://avatars.mds.yandex.net/get-altay/14396200/2a00000193430f1f50c271e7b59565f0c753/XXL",
       "source_url": "https://novabeauty.clients.site/",
-      "status": "WAITING_TEXT_DELIVERY",
-      "telegram": "@novabeautyrnd"
+      "status": "WAITING_REPLY",
+      "telegram": "@novabeautyrnd",
+      "reservation_released_at": "2026-09-09T22:17:22.038Z"
     },
     {
       "admin_save_tested": false,
@@ -151,12 +153,12 @@
       "telegram": "@Sostoyanie_beautystudio"
     }
   ],
-  "confirmed_delivered_campaign_total": 3,
+  "confirmed_delivered_campaign_total": 4,
   "created_at": "2026-09-08T21:15:08.941Z",
   "delivery": null,
   "history_checked_through": "2026-09-08T21:15:08.942Z",
-  "make_credits": 6,
-  "next_action": "Campaign executor: verify unresolved Telegram recipient profiles for Nova/Sostoyanie, recheck history and acquire exclusive reservation before outbound. Manager does not send messages.",
+  "make_credits": 12,
+  "next_action": "Continue with research-2026-09-10.json. Do not send to Sostoyanie broadcast channel. Cap remains 30 total including 4 delivered.",
   "notification_policy": "Only important aggregate updates; no per-client reports",
   "previous_delivered": 2,
   "protected_clients": [
@@ -183,5 +185,5 @@
   ],
   "sent": false,
   "status": "PARTIALLY_SENT",
-  "updated_at": "2026-09-09T21:47:44.679Z"
+  "updated_at": "2026-09-09T22:17:22.038Z"
 }
