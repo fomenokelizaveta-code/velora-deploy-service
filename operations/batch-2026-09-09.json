@@ -48,12 +48,14 @@
       "contact_verification": "Same phone on official page and Telegram/WhatsApp links",
       "delivery": {
         "photo": {
+          "execution_id": "54fa2776709a4a5090c7606e0b2ec376",
           "id": 387668700,
-          "status": "Accepted",
-          "execution_id": "54fa2776709a4a5090c7606e0b2ec376"
+          "status": "Delivered",
+          "verified_at": "2026-09-09T21:46:14.786Z"
         }
       },
       "interest": null,
+      "make_credits": 4,
       "message_text": "Здравствуйте! Посмотрели страницу салона «Белый Кролик» и подготовили вариант сайта: с вашими фотографиями, отдельным описанием услуг и кнопками связи.\n\nПервый экран — на фотографии. Весь вариант:\nhttps://velora-deploy-service-production.up.railway.app/site/belyi-krolik-krasnodar/\n\nВам было бы интересно такое оформление для салона? Если предложение неактуально — больше не будем беспокоить.\nVELORA",
       "need_hypothesis": "Individual service presentation; existing website and booking acknowledged",
       "next_action": "Sole campaign executor may reserve and send after fresh dedupe check",
@@ -84,9 +86,8 @@
       "site_url": "https://velora-deploy-service-production.up.railway.app/site/belyi-krolik-krasnodar/",
       "source_photo": "https://avatars.mds.yandex.net/get-maps-adv-crm/3927175/2a0000018be23a493574cf7dbfb092680d1e/landing_background_x3",
       "source_url": "https://sk-belyi-krolik.clients.site/",
-      "status": "WAITING_PHOTO_DELIVERY",
-      "telegram": "",
-      "make_credits": 3
+      "status": "SENDING_TEXT",
+      "telegram": ""
     },
     {
       "admin_save_tested": false,
