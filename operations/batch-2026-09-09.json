@@ -54,16 +54,17 @@
           "verified_at": "2026-09-09T21:46:14.786Z"
         },
         "text": {
+          "execution_id": "93fa6ad35c4d450dbdedf7534d36cf1d",
           "id": 387668738,
-          "status": "Accepted",
-          "execution_id": "93fa6ad35c4d450dbdedf7534d36cf1d"
+          "status": "Delivered",
+          "verified_at": "2026-09-09T21:47:44.679Z"
         }
       },
       "interest": null,
-      "make_credits": 5,
+      "make_credits": 6,
       "message_text": "Здравствуйте! Посмотрели страницу салона «Белый Кролик» и подготовили вариант сайта: с вашими фотографиями, отдельным описанием услуг и кнопками связи.\n\nПервый экран — на фотографии. Весь вариант:\nhttps://velora-deploy-service-production.up.railway.app/site/belyi-krolik-krasnodar/\n\nВам было бы интересно такое оформление для салона? Если предложение неактуально — больше не будем беспокоить.\nVELORA",
       "need_hypothesis": "Individual service presentation; existing website and booking acknowledged",
-      "next_action": "Sole campaign executor may reserve and send after fresh dedupe check",
+      "next_action": "Wait for actual reply. Do not resend photo or text.",
       "niche": "Салон красоты",
       "payment": null,
       "phone": "+79823632243",
@@ -87,12 +88,13 @@
       "reservation_owner": "direct-user-campaign-2026-09-09",
       "reserved_at": "2026-09-09T21:45:00.317Z",
       "retry_after": null,
-      "sent": false,
+      "sent": true,
       "site_url": "https://velora-deploy-service-production.up.railway.app/site/belyi-krolik-krasnodar/",
       "source_photo": "https://avatars.mds.yandex.net/get-maps-adv-crm/3927175/2a0000018be23a493574cf7dbfb092680d1e/landing_background_x3",
       "source_url": "https://sk-belyi-krolik.clients.site/",
-      "status": "WAITING_TEXT_DELIVERY",
-      "telegram": ""
+      "status": "WAITING_REPLY",
+      "telegram": "",
+      "reservation_released_at": "2026-09-09T21:47:44.679Z"
     },
     {
       "admin_save_tested": false,
@@ -137,7 +139,7 @@
   "created_at": "2026-09-08T21:15:08.941Z",
   "delivery": null,
   "history_checked_through": "2026-09-08T21:15:08.942Z",
-  "make_credits": 0,
+  "make_credits": 6,
   "next_action": "Campaign executor: verify unresolved Telegram recipient profiles for Nova/Sostoyanie, recheck history and acquire exclusive reservation before outbound. Manager does not send messages.",
   "notification_policy": "Only important aggregate updates; no per-client reports",
   "previous_delivered": 2,
@@ -164,6 +166,7 @@
     }
   ],
   "sent": false,
-  "status": "MATERIALS_READY",
-  "updated_at": "2026-09-09T21:45:00.317Z"
+  "status": "PARTIALLY_SENT",
+  "updated_at": "2026-09-09T21:47:44.679Z",
+  "confirmed_delivered_campaign_total": 3
 }
