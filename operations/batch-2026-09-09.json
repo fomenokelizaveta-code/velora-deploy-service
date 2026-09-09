@@ -16,6 +16,8 @@
       "payment": null,
       "phone": "+79635698703",
       "photo_count_to_send": 1,
+      "photo_url": "https://materials-nova-rostov-sales-c8d09666.pages.dev/screenshot-1.png",
+      "photo_verified": true,
       "price_in_first_message": false,
       "qa": {
         "admin_brief": true,
@@ -36,9 +38,7 @@
       "source_photo": "https://avatars.mds.yandex.net/get-altay/14396200/2a00000193430f1f50c271e7b59565f0c753/XXL",
       "source_url": "https://novabeauty.clients.site/",
       "status": "WAITING_CONTACT_VERIFICATION",
-      "telegram": "@novabeautyrnd",
-      "photo_url": "https://materials-nova-rostov-sales-c8d09666.pages.dev/screenshot-1.png",
-      "photo_verified": true
+      "telegram": "@novabeautyrnd"
     },
     {
       "admin_save_tested": false,
@@ -48,13 +48,15 @@
       "contact_verification": "Same phone on official page and Telegram/WhatsApp links",
       "delivery": null,
       "interest": null,
-      "message_text": "Здравствуйте! Для «Белый Кролик» подготовили вариант оформления сайта с отдельным описанием услуг и кнопками связи.\n\nПервый экран — на фотографии. Весь вариант:\nhttps://velora-deploy-service-production.up.railway.app/site/belyi-krolik-krasnodar/\n\nХотели бы рассмотреть такое оформление для вашего салона? Если неактуально — больше не будем беспокоить.\nVELORA",
+      "message_text": "Здравствуйте! Посмотрели страницу салона «Белый Кролик» и подготовили вариант сайта: с вашими фотографиями, отдельным описанием услуг и кнопками связи.\n\nПервый экран — на фотографии. Весь вариант:\nhttps://velora-deploy-service-production.up.railway.app/site/belyi-krolik-krasnodar/\n\nВам было бы интересно такое оформление для салона? Если предложение неактуально — больше не будем беспокоить.\nVELORA",
       "need_hypothesis": "Individual service presentation; existing website and booking acknowledged",
       "next_action": "Sole campaign executor may reserve and send after fresh dedupe check",
       "niche": "Салон красоты",
       "payment": null,
       "phone": "+79823632243",
       "photo_count_to_send": 1,
+      "photo_url": "https://materials-belyi-krolik-krasnodar-sales-890d219a.pages.dev/screenshot-1.png",
+      "photo_verified": true,
       "price_in_first_message": false,
       "qa": {
         "admin_brief": true,
@@ -74,10 +76,10 @@
       "site_url": "https://velora-deploy-service-production.up.railway.app/site/belyi-krolik-krasnodar/",
       "source_photo": "https://avatars.mds.yandex.net/get-maps-adv-crm/3927175/2a0000018be23a493574cf7dbfb092680d1e/landing_background_x3",
       "source_url": "https://sk-belyi-krolik.clients.site/",
-      "status": "MATERIALS_READY",
+      "status": "SENDING_PHOTO",
       "telegram": "",
-      "photo_url": "https://materials-belyi-krolik-krasnodar-sales-890d219a.pages.dev/screenshot-1.png",
-      "photo_verified": true
+      "reserved_at": "2026-09-09T21:45:00.317Z",
+      "reservation_owner": "direct-user-campaign-2026-09-09"
     },
     {
       "admin_save_tested": false,
@@ -94,6 +96,8 @@
       "payment": null,
       "phone": "+79654574150",
       "photo_count_to_send": 1,
+      "photo_url": "https://materials-sostoyanie-krasnodar-sales-bc254f1a.pages.dev/screenshot-1.png",
+      "photo_verified": true,
       "price_in_first_message": false,
       "qa": {
         "admin_brief": true,
@@ -114,9 +118,7 @@
       "source_photo": "https://avatars.mds.yandex.net/get-maps-adv-crm/11387709/2a0000018e7fcbfcdc13bbfa677371ad6280/landing_background_x3",
       "source_url": "https://sostoyaniehair.clients.site/",
       "status": "WAITING_CONTACT_VERIFICATION",
-      "telegram": "@Sostoyanie_beautystudio",
-      "photo_url": "https://materials-sostoyanie-krasnodar-sales-bc254f1a.pages.dev/screenshot-1.png",
-      "photo_verified": true
+      "telegram": "@Sostoyanie_beautystudio"
     }
   ],
   "created_at": "2026-09-08T21:15:08.941Z",
@@ -132,9 +134,6 @@
     "LE Di Clinic"
   ],
   "quota_remaining": null,
-  "sent": false,
-  "status": "MATERIALS_READY",
-  "updated_at": "2026-09-08T21:23:04.130Z",
   "resolved_errors": [
     {
       "error": "Third publication DEPLOY_FAILED",
@@ -142,13 +141,16 @@
       "run": 34279573373
     },
     {
+      "cause": "Unknown; do not assert permanent outage",
       "error": "Temporary image fetch 403/502",
-      "result": "All three actual PNGs downloaded successfully with HTTP client and visually inspected; no regeneration",
-      "cause": "Unknown; do not assert permanent outage"
+      "result": "All three actual PNGs downloaded successfully with HTTP client and visually inspected; no regeneration"
     },
     {
       "error": "Unnecessary multiple screenshot generation",
       "result": "All three materials endpoints returned exactly one screenshot URL"
     }
-  ]
+  ],
+  "sent": false,
+  "status": "MATERIALS_READY",
+  "updated_at": "2026-09-09T21:45:00.317Z"
 }
