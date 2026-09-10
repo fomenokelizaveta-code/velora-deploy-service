@@ -1,0 +1,27 @@
+{
+  "url": "https://example.invalid/demo/qa-fixture/",
+  "slug": "qa-fixture",
+  "phone": "+79990000000",
+  "expected_headline": "Учебная проверка",
+  "booking_required": true,
+  "expected_booking_url": "https://example.invalid/booking/",
+  "headline_selector": "h1",
+  "cta_selector": "a.button, button",
+  "minimum_button_px": 44,
+  "services": {
+    "selector": "#services .service-card",
+    "title_selector": "h3",
+    "image_selector": "img",
+    "expected_count": 1,
+    "items": [
+      {
+        "title": "Учебная услуга",
+        "image_urls": ["https://example.invalid/images/service.jpg"],
+        "image_alt": "Учебная фотография услуги"
+      }
+    ]
+  },
+  "forbidden_strings": ["гарантируем рост продаж", "текст-заглушка"],
+  "outbound_profile": "chromium-android",
+  "outreach_message": "Учебная проверка. Не является сообщением для отправки."
+}
