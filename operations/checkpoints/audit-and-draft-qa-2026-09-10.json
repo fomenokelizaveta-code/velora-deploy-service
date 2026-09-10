@@ -1,0 +1,51 @@
+{
+  "checked_at": "2026-09-10T18:49:05.831Z",
+  "manager_findings": [
+    "Indefinite executor uncertainty wrongly blocked independent QA",
+    "Handoff stale: 2 versus 4 recorded delivered",
+    "Admin Save discards unedited advanced brief fields",
+    "Drafts previously lacked browser validation",
+    "Credit purchase does not establish executor ownership or solve workflow errors"
+  ],
+  "implemented": {
+    "browser_qa": {
+      "run": 34516358695,
+      "result": "success",
+      "clients": 2,
+      "viewports": [
+        390,
+        1440
+      ],
+      "broken_images": 0,
+      "overflow": false,
+      "mobile_visual": "passed",
+      "deployed": false
+    },
+    "admin_fix": {
+      "branch": "fix/new-demo-admin-preservation",
+      "commit": "ac1dd148b7312d2be2e3e865f980956aabad512b",
+      "scope": [
+        "viola-beauty-simferopol",
+        "stcolor-simferopol"
+      ],
+      "syntax": "passed",
+      "mock_save_test": "Passed: headline edits preserve theme/gallery/CTA/footer; legacy behavior retained",
+      "production_deployed": false,
+      "real_admin_save_tested": false
+    }
+  },
+  "campaign": {
+    "new_sent": 0,
+    "total_recorded_delivered": 4,
+    "limit": 30,
+    "previous_executor_terminal": "unknown"
+  },
+  "second_offer": "operations/second-offer-2026-09-10.md",
+  "remaining": [
+    "Live deployment/admin roundtrip for new demos",
+    "Resolve exclusive outbound ownership with reliable terminal status or enforced fencing; never infer terminal from schedule",
+    "Actual customer-reply integration",
+    "Pilot digital price-list package and measure cost"
+  ],
+  "rollback": "Delete isolated QA workflow if needed; admin fix exists only in separate branch; no customer site changes"
+}
