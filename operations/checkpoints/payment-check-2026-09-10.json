@@ -1,0 +1,25 @@
+{
+  "date": "2026-09-10",
+  "user_report": {
+    "purchased_credits": 1000,
+    "card_charge_reported": true,
+    "credits_receipt_reported": false
+  },
+  "evidence": {
+    "manager_error": "usage limit reached; this is not a credit balance or spending history",
+    "active_child_agents": 0,
+    "matching_openai_payment_emails_found": 0,
+    "account_billing_access": "not authenticated in available browser"
+  },
+  "status": "PAYMENT_UNRECONCILED",
+  "next_action": "Obtain payment receipt showing merchant, timestamp, amount and settled/pending status, without full card number; reconcile with authenticated account credits. Do not purchase again or assert credits were consumed.",
+  "work_checkpoint": {
+    "new_customer_messages_sent_this_run": 0,
+    "confirmed_prior_recipients": 4,
+    "campaign_limit": 30,
+    "local_admin_candidate": "admin-v2-candidate.js",
+    "local_photo_selection": "manager-photos/selection.json",
+    "local_test_tools": "qa-tools; browser tests not yet run",
+    "new_work_paused_for_payment_check": true
+  }
+}
