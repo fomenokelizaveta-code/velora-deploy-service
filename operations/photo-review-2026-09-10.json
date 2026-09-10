@@ -1,0 +1,126 @@
+{
+  "reviewed_at": "2026-09-10T19:02:23.839562+00:00",
+  "scope": "Read-only photo selection. No site edits, no outreach. Photo PASS is not final website/admin/device QA PASS.",
+  "inspected_counts": {
+    "nova": 30,
+    "rabbit": 24,
+    "viola": 30
+  },
+  "businesses": {
+    "nova": {
+      "status": "NEEDS_PHOTO",
+      "cards": [
+        {
+          "card": "Маникюр",
+          "status": "PHOTO_REVIEW_PASS",
+          "index": 3,
+          "url": "https://avatars.mds.yandex.net/get-altay/13229990/2a0000018fd82854a92c1220eeacff431e5f/XL",
+          "source_url": "https://novabeauty.clients.site/",
+          "local_file": "/workspace/scratch/b5aa8a0a723f/manager-photos/nova-3.jpg",
+          "visible_content": "Рука с короткими ногтями и розово-лиловым покрытием",
+          "allowed_alt": "Маникюр — фото со страницы Nova",
+          "allowed_caption": "Маникюр — фото со страницы Nova",
+          "notes": "",
+          "live_crop_verified": false
+        },
+        {
+          "card": "Педикюр",
+          "status": "NEEDS_PHOTO",
+          "url": null,
+          "reason": "No matching image in inspected first 30 source photos. Do not substitute another business or a different procedure."
+        },
+        {
+          "card": "Парикмахерские услуги",
+          "status": "PHOTO_REVIEW_PASS",
+          "index": 10,
+          "url": "https://avatars.mds.yandex.net/get-altay/1680678/2a00000186c13d9cbb3f6934bdf2219d2d11/XL",
+          "source_url": "https://novabeauty.clients.site/",
+          "local_file": "/workspace/scratch/b5aa8a0a723f/manager-photos/nova-10.jpg",
+          "visible_content": "Мастер держит горячий инструмент возле волос посетительницы; видно укладку волос, на пеньюаре NOVA",
+          "allowed_alt": "Укладка волос — фото со страницы Nova",
+          "allowed_caption": "Укладка волос — фото со страницы Nova",
+          "notes": "Do not describe this as coloring, haircut, or a specific technology.",
+          "live_crop_verified": false
+        }
+      ],
+      "alternatives": [
+        {
+          "card": "Парикмахерские услуги",
+          "status": "PHOTO_REVIEW_PASS",
+          "index": 26,
+          "url": "https://avatars.mds.yandex.net/get-altay/979642/2a000001862b2a421b2c6199decd37bb1c92/XL",
+          "source_url": "https://novabeauty.clients.site/",
+          "local_file": "/workspace/scratch/b5aa8a0a723f/manager-photos/nova-26.jpg",
+          "visible_content": "Ножницы, расчёска и прядь волос в руках мастера",
+          "allowed_alt": "Стрижка — фото со страницы Nova",
+          "allowed_caption": "Стрижка — фото со страницы Nova",
+          "notes": "Darker image; verify crop if used.",
+          "live_crop_verified": false
+        }
+      ]
+    },
+    "rabbit": {
+      "status": "ALL_REQUESTED_CARD_PHOTOS_SELECTED",
+      "cards": [
+        {
+          "card": "Маникюр",
+          "status": "PHOTO_REVIEW_PASS",
+          "index": 6,
+          "url": "https://avatars.mds.yandex.net/get-altay/13457355/2a0000018ea4685b9fac14ff4486de14865a/XL",
+          "source_url": "https://sk-belyi-krolik.clients.site/",
+          "local_file": "/workspace/scratch/b5aa8a0a723f/manager-photos/rabbit-6.jpg",
+          "visible_content": "Красное покрытие на ногтях рук; в изображении подпись МАНИКЮР и БЕЛЫЙ КРОЛИК",
+          "allowed_alt": "Маникюр — фото со страницы салона «Белый Кролик»",
+          "allowed_caption": "Маникюр — фото со страницы салона «Белый Кролик»",
+          "notes": "Preserve salon watermark and service label; avoid cover crop cutting bottom.",
+          "live_crop_verified": false
+        },
+        {
+          "card": "Педикюр",
+          "status": "PHOTO_REVIEW_PASS",
+          "index": 22,
+          "url": "https://avatars.mds.yandex.net/get-altay/1483503/2a000001863284d1b809c49150c8955ab934/XL",
+          "source_url": "https://sk-belyi-krolik.clients.site/",
+          "local_file": "/workspace/scratch/b5aa8a0a723f/manager-photos/rabbit-22.jpg",
+          "visible_content": "Пальцы ноги с покрытием и белыми кончиками",
+          "allowed_alt": "Педикюр — фото со страницы салона «Белый Кролик»",
+          "allowed_caption": "Педикюр — фото со страницы салона «Белый Кролик»",
+          "notes": "",
+          "live_crop_verified": false
+        },
+        {
+          "card": "Наращивание ногтей",
+          "status": "PHOTO_REVIEW_PASS",
+          "index": 0,
+          "url": "https://avatars.mds.yandex.net/get-altay/911432/2a0000018ea4685b7ab3f7acc73cc130e089/XL",
+          "source_url": "https://sk-belyi-krolik.clients.site/",
+          "local_file": "/workspace/scratch/b5aa8a0a723f/manager-photos/rabbit-0.jpg",
+          "visible_content": "Длинные ногти с рисунком; на самом изображении подпись НАРАЩИВАНИЕ НОГТЕЙ и БЕЛЫЙ КРОЛИК",
+          "allowed_alt": "Наращивание ногтей — фото со страницы салона «Белый Кролик»",
+          "allowed_caption": "Наращивание ногтей — фото со страницы салона «Белый Кролик»",
+          "notes": "Procedure is supported by source image text, not inferred merely from nail length. Preserve embedded attribution/service label.",
+          "live_crop_verified": false
+        }
+      ]
+    },
+    "viola": {
+      "status": "NEEDS_PHOTO",
+      "cards": [
+        {
+          "card": "Брови",
+          "status": "NEEDS_PHOTO",
+          "url": null,
+          "reason": "No matching image in inspected first 30 source photos. Do not substitute another business or a different procedure."
+        },
+        {
+          "card": "Ресницы",
+          "status": "NEEDS_PHOTO",
+          "url": null,
+          "reason": "No matching image in inspected first 30 source photos. Do not substitute another business or a different procedure."
+        }
+      ],
+      "notes": "Inspected images contain nails/hands/feet, no matching brows or lashes images. Do not change service names merely to force existing photos into unrelated cards."
+    }
+  },
+  "next_gate": "Root integrates only relevant selected images. Manager reviews exact published sites, service cards, first-screen capture, links and admin evidence before any outreach. Emulated browsers are not real iPhone/Android/Windows device tests."
+}
