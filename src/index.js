@@ -155,6 +155,9 @@ app.get('/v1/admin', function (req, res) {
     const slug = ${JSON.stringify(slug)};
     const token = ${JSON.stringify(token)};
     const $ = id => document.getElementById(id);
+    const preserveBrief = ['viola-beauty-simferopol','stcolor-simferopol'].includes(slug);
+    let loadedBrief = null;
+    if (preserveBrief) $('save').disabled = true;
 
     async function load() {
       const r = await fetch('/v1/site-brief?slug=' + encodeURIComponent(slug), {
@@ -163,6 +166,9 @@ app.get('/v1/admin', function (req, res) {
       if (!r.ok) return;
       const data = await r.json();
       const b = data.brief || {};
+      if (preserveBrief && !b.business_name) { $('status').textContent = 'Не удалось загрузить данные сайта'; return; }
+      loadedBrief = b;
+      if (preserveBrief) $('save').disabled = false;
       ['business_name','business_description','phone','telegram','address','working_hours','headline','subheadline','hero_image'].forEach(k => {
         if ($(k)) $(k).value = b[k] || '';
       });
@@ -171,11 +177,13 @@ app.get('/v1/admin', function (req, res) {
     }
 
     $('save').onclick = async () => {
+      if (preserveBrief && !loadedBrief) { $('status').textContent='Сначала загрузите данные сайта'; return; }
       let services=[], reviews=[];
       try { services = $('services').value.trim() ? JSON.parse($('services').value) : []; } catch(e) { $('status').textContent='Ошибка JSON в услугах'; return; }
       try { reviews = $('reviews').value.trim() ? JSON.parse($('reviews').value) : []; } catch(e) { $('status').textContent='Ошибка JSON в отзывах'; return; }
 
       const brief = {
+        ...(preserveBrief ? loadedBrief : {}),
         business_name:$('business_name').value,
         business_description:$('business_description').value,
         phone:$('phone').value,
