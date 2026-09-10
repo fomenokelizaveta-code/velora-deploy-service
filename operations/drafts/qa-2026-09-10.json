@@ -1,0 +1,42 @@
+{
+  "checked_at": "2026-09-10T18:18:35.352Z",
+  "results": [
+    {
+      "client_id": "viola-beauty-simferopol",
+      "file": "operations/drafts/viola-beauty-simferopol.html",
+      "checks": {
+        "viewport": true,
+        "responsive_breakpoint": true,
+        "source_photo_fetched_and_visually_inspected": true,
+        "phone_matches": true,
+        "no_initial_price": true,
+        "demo_disclosure": true,
+        "browser_render": null,
+        "admin": null,
+        "deployment": null
+      },
+      "status": "DRAFT_NOT_READY_TO_SEND",
+      "next_action": "After exclusive executor status is resolved: integrate draft with existing deployment/admin; render mobile and desktop, verify live links and one screenshot before outreach."
+    },
+    {
+      "client_id": "stcolor-simferopol",
+      "file": "operations/drafts/stcolor-simferopol.html",
+      "checks": {
+        "viewport": true,
+        "responsive_breakpoint": true,
+        "source_photo_fetched_and_visually_inspected": true,
+        "phone_matches": true,
+        "no_initial_price": true,
+        "demo_disclosure": true,
+        "browser_render": null,
+        "admin": null,
+        "deployment": null
+      },
+      "status": "DRAFT_NOT_READY_TO_SEND",
+      "next_action": "After exclusive executor status is resolved: integrate draft with existing deployment/admin; render mobile and desktop, verify live links and one screenshot before outreach."
+    }
+  ],
+  "new_messages": 0,
+  "existing_sites_modified": false,
+  "blocker": "Previous executor active/terminal state not exposed by connected automation tools. No concurrent outreach started."
+}
