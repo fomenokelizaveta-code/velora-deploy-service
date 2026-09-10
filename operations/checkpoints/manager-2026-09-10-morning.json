@@ -1,0 +1,132 @@
+{
+  "checked_at": "2026-09-10T05:13:41Z",
+  "role": "manager",
+  "campaign": {
+    "limit": 30,
+    "confirmed_delivered": 4,
+    "remaining_max": 26,
+    "recipients": [
+      {
+        "client_id": "bonbuket-sevastopol",
+        "city": "Севастополь",
+        "niche": "Цветы",
+        "photo_delivery_id": 387151758,
+        "text_delivery_id": 387152554,
+        "photo_status": "Delivered",
+        "text_status": "Delivered",
+        "reply": null,
+        "interest": null,
+        "payment": null,
+        "make_credits": 6,
+        "next_action": "WAITING_REPLY; no repeat outreach"
+      },
+      {
+        "client_id": "ten-ballov-krasnodar",
+        "city": "Краснодар",
+        "niche": "Уход за волосами",
+        "photo_delivery_id": 387156496,
+        "text_delivery_id": 387156816,
+        "photo_status": "Delivered",
+        "text_status": "Delivered",
+        "reply": null,
+        "interest": null,
+        "payment": null,
+        "make_credits": 6,
+        "next_action": "WAITING_REPLY; no repeat outreach"
+      },
+      {
+        "client_id": "nova-rostov",
+        "city": "Ростов-на-Дону",
+        "niche": "Салон красоты",
+        "photo_delivery_id": 387670336,
+        "text_delivery_id": 387670420,
+        "photo_status": "Delivered",
+        "text_status": "Delivered",
+        "reply": null,
+        "interest": null,
+        "payment": null,
+        "make_credits": 6,
+        "next_action": "WAITING_REPLY; no repeat outreach"
+      },
+      {
+        "client_id": "belyi-krolik-krasnodar",
+        "city": "Краснодар",
+        "niche": "Салон красоты",
+        "photo_delivery_id": 387668700,
+        "text_delivery_id": 387668738,
+        "photo_status": "Delivered",
+        "text_status": "Delivered",
+        "reply": null,
+        "interest": null,
+        "payment": null,
+        "make_credits": 6,
+        "next_action": "WAITING_REPLY; no repeat outreach"
+      }
+    ],
+    "new_sends_this_check": 0,
+    "replies": null,
+    "interest": null,
+    "payments": null
+  },
+  "history": {
+    "from": "2026-09-09T22:17:00Z",
+    "text_runs": 0,
+    "photo_runs": 0
+  },
+  "automation": {
+    "id": "6a9f46b6a2e48191804430cacd0f4945",
+    "enabled": false,
+    "last_run_time": "2026-09-09T22:53:30.887717+00:00",
+    "next_run_time": null,
+    "active_executor": "unknown; peek has no active-process field; last_run_time is not completion",
+    "rescheduled": false,
+    "blocker": "Need trustworthy terminal state of latest executor before restarting campaign. No new journal after last direct delivery."
+  },
+  "priorities": [
+    {
+      "rank": 1,
+      "executor": "existing campaign executor",
+      "task": "Publish terminal/active status and exclusive campaign reservation before external actions",
+      "reason": "Avoid concurrent campaign; schedule is not completion"
+    },
+    {
+      "rank": 2,
+      "executor": "existing campaign executor",
+      "task": "Use existing 12 candidate pages, qualify real need and direct contact, then site QA before send; broaden city+niche comparison beyond Crimea",
+      "reason": "Candidates not ready; no city-demand ranking established"
+    },
+    {
+      "rank": 3,
+      "executor": "existing campaign executor",
+      "task": "Keep Sostoyanie blocked until public direct business contact verified; never send to broadcast channel",
+      "reason": "Channel identity confirmed"
+    }
+  ],
+  "improvements": [
+    {
+      "observed_error": "Handoff says 2 delivered, research says 3 and Nova sent:false, while recipient journals confirm 4",
+      "evidence": [
+        "operations/manager-handoff.md",
+        "operations/research-2026-09-10.json",
+        "operations/batch-2026-09-09.json"
+      ],
+      "source": "https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents",
+      "source_published": "2025-11-26",
+      "proposed_change": "Derive delivery totals and do-not-resend set from recipient delivery IDs, not research snapshots; refresh shared handoff only with safe ownership",
+      "before": "Conflicting snapshots 2/3/4",
+      "after": "Separate manager reconciliation establishes 4 unique recipients with both deliveries recorded",
+      "implemented": "This separate checkpoint only; shared files and runtime unchanged",
+      "rollback": "Remove this checkpoint; no customer or site changes"
+    }
+  ],
+  "quotas": {
+    "make_remaining": null,
+    "github_remaining": null,
+    "railway_remaining": null,
+    "jetapi_expiry_freshly_verified": false,
+    "new_make_run_credits": 0
+  },
+  "shared_queue_modified": false,
+  "sites_modified": false,
+  "notification": "Campaign still 4/30; latest executor completion unknown. Do not claim running or completed."
+}
