@@ -1,0 +1,59 @@
+name: Verify isolated prospect drafts
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/verify-prospect-drafts.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: velora-draft-qa
+  cancel-in-progress: false
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm install --no-save --package-lock=false playwright
+      - run: npx playwright install --with-deps chromium
+      - name: Render drafts without deployment or outreach
+        run: |
+          node <<'JS'
+          const fs=require('fs'), http=require('http'), path=require('path'), {chromium}=require('playwright');
+          (async()=>{
+            const clients=JSON.parse(fs.readFileSync('operations/prepared-briefs-2026-09-10.json')).clients;
+            const server=http.createServer((req,res)=>{
+              const client=clients.find(c=>req.url==='/'+c.client_id);
+              if(!client){res.writeHead(404);return res.end();}
+              res.setHeader('Content-Type','text/html; charset=utf-8');
+              res.end(fs.readFileSync(path.join('operations/drafts',client.client_id+'.html')));
+            });
+            await new Promise(r=>server.listen(8765,'127.0.0.1',r));
+            const browser=await chromium.launch(); const reports=[];
+            try{
+              fs.mkdirSync('draft-qa',{recursive:true});
+              for(const c of clients){
+                const report={client_id:c.client_id,deployed:false,admin_tested:false,sent:false,viewports:[]};
+                for(const width of [390,1440]){
+                  const p=await browser.newPage({viewport:{width,height:width===390?844:900}});
+                  await p.goto('http://127.0.0.1:8765/'+c.client_id,{waitUntil:'networkidle',timeout:60000});
+                  await p.evaluate(()=>Promise.all([...document.images].map(i=>i.decode().catch(()=>{}))));
+                  const q=await p.evaluate(()=>({width:innerWidth,overflow:document.documentElement.scrollWidth>innerWidth,broken_images:[...document.images].filter(i=>!i.complete||!i.naturalWidth).length,phones:[...document.querySelectorAll('a[href^="tel:"]')].map(a=>a.getAttribute('href'))}));
+                  q.pass=!q.overflow&&!q.broken_images&&q.phones.length>0&&q.phones.every(x=>x==='tel:'+c.verified_contact);
+                  await p.screenshot({path:'draft-qa/'+c.client_id+'-'+width+'.png',fullPage:true});
+                  report.viewports.push(q);await p.close();
+                }
+                reports.push(report);
+              }
+              fs.writeFileSync('draft-qa/report.json',JSON.stringify(reports,null,2));
+              if(reports.some(r=>r.viewports.some(v=>!v.pass)))process.exitCode=1;
+            }finally{await browser.close();server.close();}
+          })().catch(e=>{console.error(e.message);process.exit(1)});
+          JS
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: prospect-draft-qa
+          path: draft-qa/
+          retention-days: 7
