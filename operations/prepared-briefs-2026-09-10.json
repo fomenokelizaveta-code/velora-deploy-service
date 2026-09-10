@@ -1,0 +1,126 @@
+{
+  "created_at": "2026-09-10T18:15:04.153Z",
+  "status": "BRIEFS_PREPARED_NOT_DEPLOYED",
+  "campaign_limit": 30,
+  "already_delivered": 4,
+  "executor_state": "Unknown; no outbound or shared source changes permitted until resolved",
+  "clients": [
+    {
+      "client_id": "viola-beauty-simferopol",
+      "source_url": "https://viola-beauty.clients.site/",
+      "city": "Симферополь",
+      "niche": "Студия красоты",
+      "verified_contact": "+79782692989",
+      "telegram_source": "https://telegram.me/+79782692989",
+      "existing_site": true,
+      "existing_booking": true,
+      "activity": "Reviews visible; years not displayed, recent activity unconfirmed",
+      "need_hypothesis": "Separate concise service blocks in place of long mixed description; no absence-of-site claim",
+      "site_build_brief": {
+        "business_name": "Viola Beauty",
+        "eyebrow": "Студия красоты · Симферополь",
+        "headline": "Время для себя",
+        "subheadline": "Маникюр, педикюр, оформление бровей и ламинирование ресниц — на Петропавловской, 12.",
+        "phone": "+79782692989",
+        "address": "Симферополь, Петропавловская улица, 12",
+        "primary_action_label": "Позвонить в студию",
+        "primary_action_url": "tel:+79782692989",
+        "secondary_action_label": "Написать в Telegram",
+        "secondary_action_url": "https://t.me/+79782692989",
+        "hero_image": "https://avatars.mds.yandex.net/get-maps-adv-crm/4771617/2a0000019039cbec9e6b8b68c399b63c2ac2/landing_background",
+        "services": [
+          {
+            "title": "Маникюр и педикюр",
+            "description": "Уход за ногтями и оформление. Вариант покрытия можно обсудить с мастером."
+          },
+          {
+            "title": "Брови",
+            "description": "Окрашивание и ламинирование бровей."
+          },
+          {
+            "title": "Ресницы",
+            "description": "Ламинирование ресниц. Уточните детали процедуры при записи."
+          }
+        ],
+        "footer_note": "Демонстрационный вариант оформления от VELORA.",
+        "theme": {
+          "accent": "#A56788",
+          "accent2": "#CFADC0",
+          "background": "#FAF6F8",
+          "surface": "#FFFFFF",
+          "text": "#30262B",
+          "muted": "#76636D"
+        }
+      },
+      "qa": null,
+      "delivery": null,
+      "next_action": "Inspect source image and activity; after exclusive ownership deploy, test admin and both viewports, then produce single real screenshot."
+    },
+    {
+      "client_id": "stcolor-simferopol",
+      "source_url": "https://stcolorsimf.clients.site/",
+      "city": "Симферополь",
+      "niche": "Колористика",
+      "verified_contact": "+79787431947",
+      "telegram_source": "https://telegram.me/+79787431947",
+      "existing_site": true,
+      "existing_booking": "https://n125070.yclients.com",
+      "activity": "Reviews visible without year; not proof of current activity",
+      "need_hypothesis": "Explain coloring options separately and retain existing booking",
+      "site_build_brief": {
+        "business_name": "Студия колористики",
+        "eyebrow": "Окрашивание и уход · Симферополь",
+        "headline": "Цвет, который подходит вам",
+        "subheadline": "Сложные окрашивания, тонирование и уходовые процедуры для волос.",
+        "phone": "+79787431947",
+        "address": "Симферополь, улица Набережная имени 60-летия СССР, 50, корпус 5",
+        "primary_action_label": "Записаться онлайн",
+        "primary_action_url": "https://n125070.yclients.com",
+        "secondary_action_label": "Обсудить окрашивание",
+        "secondary_action_url": "https://t.me/+79787431947",
+        "hero_image": "https://avatars.mds.yandex.net/get-maps-adv-crm/3736055/2a00000180adb512c406cb5ae1bfb01990e9/landing_background",
+        "services": [
+          {
+            "title": "Сложное окрашивание",
+            "description": "Аиртач, мелирование и сочетание техник. Выбор техники обсуждается с мастером."
+          },
+          {
+            "title": "Цвет и тонирование",
+            "description": "Цветные окрашивания и тонирование волос."
+          },
+          {
+            "title": "Уход за волосами",
+            "description": "Уходовые процедуры. Подходящий вариант можно уточнить при консультации."
+          }
+        ],
+        "footer_note": "Демонстрационный вариант оформления от VELORA.",
+        "theme": {
+          "accent": "#A37749",
+          "accent2": "#D6B58E",
+          "background": "#F8F5F0",
+          "surface": "#FFFFFF",
+          "text": "#2C2925",
+          "muted": "#796F64"
+        }
+      },
+      "qa": null,
+      "delivery": null,
+      "next_action": "Inspect source image and activity; exclusive ownership required before shared deployment; test admin and layout."
+    }
+  ],
+  "excluded_claims": [
+    "No copied testimonials",
+    "No medical treatment or permanent hair-removal guarantees",
+    "No statement that either business lacks a website or booking"
+  ],
+  "research_errors": [
+    {
+      "source": "web search for Kazan and Ekaterinburg",
+      "result": "Irrelevant results; excluded entirely; no city comparison inferred"
+    },
+    {
+      "source": "GL official page",
+      "result": "Web open error; not treated as closed business"
+    }
+  ]
+}
